@@ -1,8 +1,0 @@
-use "point.sml"
-
-structure Cluster = struct
-
-type t = {
-    clusterCenters : real array array,
-    bestNClusters : int,
-    
