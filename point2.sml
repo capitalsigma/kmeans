@@ -1,14 +1,14 @@
 signature POINT = sig
     type t
+    type col
     exception NotEnoughFeatures
     exception InvalidFieldIndex
 	     
     val repr : t -> string
     val printPoint : t -> unit
-    val printPointList : t list -> unit
     val Point : int -> t
-    val pointFromList : real list -> t
-    val zipListToPoints : real list list -> t list
+    val pointFromVector : real col -> t
+    val zipVectorToPoints : real col col -> t col
 end
 
 structure Point :> POINT = struct 
@@ -32,7 +32,7 @@ fun repr({numFeatures = n, features = fs, membership = m}) : string =
 	fun addField (0) : string =
 	    "numFeatures: " ^ Int.toString(n) ^ "\n" ^ addField(1)
 	  | addField (1)  = 
-	    (foldl foldReals "features: " fs) ^ "\n" ^ addField(2)
+	    (Vector.foldl foldReals "features: " fs) ^ "\n" ^ addField(2)
 	  | addField (2) : string = 
 	    "membership: " ^ Int.toString(m) ^ "\n"
 	  | addField (_) =
@@ -47,32 +47,20 @@ fun repr({numFeatures = n, features = fs, membership = m}) : string =
 (* convenience function for debugging *)
 fun printPoint(p) =
     let
-	val res = repr(p) ^ "\n"
+	val res = repr(p)
     in
 	print res
     end
-
-fun printPointList(ps) = 
-    let 
-	val lenStr = Int.toString(length(ps))
-	val startStr = "Printing point list of length: " ^ lenStr ^ "\n" 
-	val endStr = "-------------\n"
-    in
-	(print startStr;
-	 app printPoint ps;
-	 print endStr)
-    end
-
 
 (* methods are t, ... -> t functions contained in the *)
 (* Point structure, public methods are in the signature *)
 
 (* name follows the Java convention *)
-fun Point (numFeatures) =
+fun Point(numFeatures) =
     let
-	fun zeroFill (x) = 0.0
+	fun zeroFill (x) = 0
 	val ret = {
-	    features = List.tabulate(numFeatures, zeroFill),
+	    features = Vector.tabulate(numFeatures, zeroFill),
 	    numFeatures = numFeatures,
 	    membership = ~1
 	}
@@ -80,11 +68,11 @@ fun Point (numFeatures) =
 	ret
     end
 
-fun pointFromList (fs) = 
+fun pointFromVector(fs : real vector) = 
     let
 	val ret = {
 	    features = fs,
-	    numFeatures = length(fs),
+	    numFeatures = Vector.length(fs),
 	    membership = ~1
 	}
     in
@@ -96,34 +84,32 @@ fun pointFromList (fs) =
 
 (* this should go from [[a, b], [c, d], [e, f]] to *)
 (* [{features = [a, c, e], ...}, {features = [b, d, f], ...}] *)
-(* assumes that all lists are at least as long as the first one *)
-fun zipListToPoints (featuress : real list list) = 
+(* assumes that all vectors are at least as long as the first one *)
+(* i'm not sure what the time complexity of prepending to vectors is *)
+(* this could be bad *)
+fun zipToPoints(featuress : real vector vector) = 
     let
-	fun zipElement ([], [], accY, []) = 
-	    accY
-	  | zipElement ([], [], accY, accX) = 	   
-	    zipElement(rev(accX), rev(accY), [], [])
-	  | zipElement ([], xs::xss, accY, accX) = 
-	    zipElement([], xss, [hd(xs)]::accY, tl(xs)::accX)
-	  | zipElement (ys::yss, xs::xss, accY, accX) =
-	    zipElement (yss, xss, (hd(xs)::ys)::accY, tl(xs)::accX)
-	val numFeatures = length(hd(featuress))
-	val zippedList = zipElement([], featuress, [], [])
+	val numFeatures = Vector.length(Vector.sub(featuress, 0))
+	fun extractFeature (i) : real vector =
+	    Vector.map (fn func fs => Vector.sub(fs, i)) featuress
+	fun zipToVector (#[], i) = (* starting case *)
+	    zipToVector (extractFeature(i), i - 1)
+	  | zipToVector (acc, 0) = acc (* base case *)
+	  | zipToVector (acc, i) = 
+	    let 		
+		val row = extractFeature(i)
+		fun itemWiseAppend (index, rowElement) = 
+		    Vector.concat(Vector.tabulate(1, rowElement),
+				  Vector.sub(acc, index))
+	    in
+		zipToVector((Vector.mapi itemWiseAppend row), i - 1)
+	    end
     in
-	if length(featuress) <> length(hd(featuress)) then
-	    raise NotEnoughFeatures
-	else
-	    map pointFromList zippedList
+	Vector.map pointFromVector zipToVector(#[], numFeatures)
     end
 end 
 
 
 (* Unit Tests *)
-(* val p = Point.Point(5) *)
-(* val _ = Point.printPoint(p) *)
-(* val p2 = Point.pointFromList([1.0, 2.0, 3.0, 4.0]) *)
-(* val _ = Point.printPoint(p2) *)
-
-val listToZip = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]]
-val p3 = Point.zipListToPoints listToZip
-val _ = app Point.printPoint p3
+val p = Point.Point(5)
+val _ = Point.printPoint(p)

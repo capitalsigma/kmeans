@@ -11,24 +11,35 @@ type t = {
 fun extractMoments(data, num_elts, num_moments) =
     ()
 
-fun zscoreTransform(data : Point.t array,
-		    numObjects : int,
+fun zscoreTransform(points : Point.t array,
+		    numObjects : int, (* == len(points) ? *)
 		    numAttributes : int) : Point.t array =
-    (* single_variable collects attributes from each point *)
-    let 
-	(* singleVar = one iteration of the outer for loop *)
-	fun singleVar (single_features : real array) =
-	    let 
-		val moments = extractMoments(single_feature, numObjects, 2)
-		val zeroth_moment = #0(moments)
-		val first_moment = Math.sqrt(#1(moments))
+
+   let
+       (* singleFeatureNormalize = one iteration of the outer for loop *)
+       (* single_features collects attributes from each point *)
+       fun singleFeatureNormalize (single_features : real array) =
+	   let 
+	       val moments = extractMoments(single_feature, numObjects, 2)
+	       val zeroth_moment = #0(moments)
+	       val first_moment = Math.sqrt(#1(moments))
 					    
-		fun normalize(single_feature) =
-		    (single_feature - zeroth_moment) / first_moment
-	    in
-		map normalize single_features
-	    end
-    in
+	       fun normalize(single_feature) =
+		   (single_feature - zeroth_moment) / first_moment
+	   in
+	       map normalize single_features
+	   end
+       (* this is intended to replace the  *)
+       (* for(i=0; i<numFeatures; i++){ *)
+       (*     points[j].getFeature[i] *)
+       (* } *)
+       (* loop in the Java code *)
+       fun extractSingleFeatureFromAllPoints (index) = 	       
+	   map (fn index => sub(points, index)) points
+       fun collectSingleFeature
+   in
+       
+	
 end
 		   
 
