@@ -8,7 +8,8 @@ signature POINT = sig
     val printPointList : t list -> unit
     val Point : int -> t
     val pointFromList : real list -> t
-    val zipListToPoints : real list list -> t list
+    val featureListToPoints : real list list -> t list
+    val pointsToFeatureList : t list -> real list list
 end
 
 structure Point :> POINT = struct 
@@ -92,32 +93,33 @@ fun pointFromList (fs) =
     end
 
 (* all of the other methods of the Java class are getters and setters *)
-(* they have been ommitted as unnecessary *)
+
+fun transpose [] = []
+  | transpose ([]::_) = []
+  | transpose xss = map hd xss :: transpose (map tl xss)
+
 
 (* this should go from [[a, b], [c, d], [e, f]] to *)
 (* [{features = [a, c, e], ...}, {features = [b, d, f], ...}] *)
 (* assumes that all lists are at least as long as the first one *)
-fun zipListToPoints (featuress : real list list) = 
+fun featureListToPoints (featuress : real list list) = 
     let
-	fun zipElement ([], [], accY, []) = 
-	    accY
-	  | zipElement ([], [], accY, accX) = 	   
-	    zipElement(rev(accX), rev(accY), [], [])
-	  | zipElement ([], xs::xss, accY, accX) = 
-	    zipElement([], xss, [hd(xs)]::accY, tl(xs)::accX)
-	  | zipElement (ys::yss, xs::xss, accY, accX) =
-	    zipElement (yss, xss, (hd(xs)::ys)::accY, tl(xs)::accX)
-	val numFeatures = length(hd(featuress))
-	val zippedList = zipElement([], featuress, [], [])
+	val zippedList = transpose featuress
     in
-	if length(featuress) <> length(hd(featuress)) then
-	    raise NotEnoughFeatures
-	else
-	    map pointFromList zippedList
+	map pointFromList zippedList
     end
-end 
 
 
+fun pointsToFeatureList (points : t list) =
+    let
+	val featuresByPoint = 
+	    map (fn {features=f, ...} => f) points
+    in 
+	transpose featuresByPoint
+    end
+
+
+end
 (* Unit Tests *)
 (* val p = Point.Point(5) *)
 (* val _ = Point.printPoint(p) *)
@@ -125,5 +127,7 @@ end
 (* val _ = Point.printPoint(p2) *)
 
 val listToZip = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]]
-val p3 = Point.zipListToPoints listToZip
+val p3 = Point.featureListToPoints listToZip
 val _ = app Point.printPoint p3
+
+val featureList = Point.pointsToFeatureList p3

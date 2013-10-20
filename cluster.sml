@@ -8,8 +8,17 @@ type t = {
     bestNClusters : int
 }
 
-fun extractMoments(data, num_elts, num_moments) =
-    ()
+fun extractMoments(singleVariable)
+    let 
+	val len = length singleVariable
+	val zeroth_moment = (foldr op+ 0 singleVariable) / len
+	fun get_variance (dataPoint) =
+	    Math.pow(dataPoint - zerothMoment, 2)
+	val first_moment = 
+	    (foldr op+ 0 (map get_variance singleVariable)) / len
+    in
+	[zeroth_moment, first_moment]
+    end
 
 fun zscoreTransform(points : Point.t array,
 		    numObjects : int, (* == len(points) ? *)
@@ -21,7 +30,7 @@ fun zscoreTransform(points : Point.t array,
        fun singleFeatureNormalize (single_features : real array) =
 	   let 
 	       val moments = extractMoments(single_feature, numObjects, 2)
-	       val zeroth_moment = #0(moments)
+	       val zeroth_moment = #0 moments
 	       val first_moment = Math.sqrt(#1(moments))
 					    
 	       fun normalize(single_feature) =
@@ -34,17 +43,16 @@ fun zscoreTransform(points : Point.t array,
        (*     points[j].getFeature[i] *)
        (* } *)
        (* loop in the Java code *)
-       fun extractSingleFeatureFromAllPoints (index) = 	       
-	   map (fn index => sub(points, index)) points
-       fun collectSingleFeature
+       val featureList = Point.pointsToFeatureList points
+       val normalizedFeatures = map singleFeatureNormalize featureList 
    in
-       
+       Point.featureListToPoints normalizedFeatures
 	
-end
+   end
 		   
 
-fun execute(nthreads : int, 
-	    numObjects : int,	
+(* http://www.smlnj.org/doc/FAQ/faq.txt for random seeding *)
+fun execute(numObjects : int,	
 	    numAttributes : int, 
 	    attributes : Point.t array,
 	    use_szcore_transform : bool,
@@ -55,6 +63,24 @@ fun execute(nthreads : int,
 	      val normalized_attrs = zscoreTransform(attributes,
 						     numObjects,
 						     numAttributes)
-	       (* seed random value *)
+	      val now = Time.now()
+	      val sec = Time.fromSeconds(Time.toSeconds now)
+	      val usec = Time.toMicroseconds(Time.toMicroSeconds now)
+	      val randomPtr = Random.rand(sec, usec)
+	   in
+	       (* this needs to change to select the best centers out of all *)
+	       (* of them. it looks like Normal is responsible for this in *)
+	       (* the Java. *)
+	       map Normal.execute(attributes,
+				  numAttributes,
+				  numObjects,
+				  nClusters,
+				  threshold,
+				  randomPtr)
+	   end
+
+				  
+
 			       
 		  
+end
