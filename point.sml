@@ -8,6 +8,7 @@ signature POINT = sig
     val printPointList : t list -> unit
     val Point : int -> t
     val pointFromList : real list -> t
+    val pointToList : t -> real list
     val featureListToPoints : real list list -> t list
     val pointsToFeatureList : t list -> real list list
 end
@@ -109,11 +110,13 @@ fun featureListToPoints (featuress : real list list) =
 	map pointFromList zippedList
     end
 
+fun pointToList ({features=f, ...} : t) = 
+    f
 
 fun pointsToFeatureList (points : t list) =
     let
 	val featuresByPoint = 
-	    map (fn {features=f, ...} => f) points
+	    map pointToList points
     in 
 	transpose featuresByPoint
     end
@@ -121,10 +124,11 @@ fun pointsToFeatureList (points : t list) =
 
 end
 (* Unit Tests *)
-(* val p = Point.Point(5) *)
-(* val _ = Point.printPoint(p) *)
-(* val p2 = Point.pointFromList([1.0, 2.0, 3.0, 4.0]) *)
-(* val _ = Point.printPoint(p2) *)
+val p = Point.Point(5)
+val _ = Point.printPoint(p)
+val p2 = Point.pointFromList([1.0, 2.0, 3.0, 4.0])
+val _ = Point.printPoint(p2)
+val p4 = Point.pointToList(p2)
 
 val listToZip = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]]
 val p3 = Point.featureListToPoints listToZip
