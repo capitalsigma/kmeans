@@ -11,6 +11,12 @@ signature POINT = sig
     val pointToList : t -> real list
     val featureListToPoints : real list list -> t list
     val pointsToFeatureList : t list -> real list list
+
+    val add : t * t -> t
+			   
+    val getSize : t -> int
+    val incSize : t -> t
+    val resetSize : t -> t
 end
 
 structure Point :> POINT = struct 
@@ -21,13 +27,14 @@ exception InvalidFieldIndex
 (* features: values on each axis, *)
 (* numFeatures: feature count, *)
 (* membership: id of the cluster that the point belongs to *)
+(* size: count of the points that have been added to a cluster *)
 type t = {
     numFeatures : int,
     features : real list,
-    membership : int 
+    size : int
 }
 
-fun repr({numFeatures = n, features = fs, membership = m}) : string =
+fun repr({numFeatures = n, features = fs, size = m}) : string =
     let 
 	fun foldReals(real, string) = 
 	    string ^ Real.toString(real) ^ ", "
@@ -36,7 +43,7 @@ fun repr({numFeatures = n, features = fs, membership = m}) : string =
 	  | addField (1)  = 
 	    (foldl foldReals "features: " fs) ^ "\n" ^ addField(2)
 	  | addField (2) : string = 
-	    "membership: " ^ Int.toString(m) ^ "\n"
+	    "size: " ^ Int.toString(m) ^ "\n"
 	  | addField (_) =
 	     raise InvalidFieldIndex
     in
@@ -69,6 +76,7 @@ fun printPointList(ps) =
 (* methods are t, ... -> t functions contained in the *)
 (* Point structure, public methods are in the signature *)
 
+
 (* name follows the Java convention *)
 fun Point (numFeatures) =
     let
@@ -76,7 +84,7 @@ fun Point (numFeatures) =
 	val ret = {
 	    features = List.tabulate(numFeatures, zeroFill),
 	    numFeatures = numFeatures,
-	    membership = ~1
+	    size = 0
 	}
     in
 	ret
@@ -87,13 +95,30 @@ fun pointFromList (fs) =
 	val ret = {
 	    features = fs,
 	    numFeatures = length(fs),
-	    membership = ~1
+	    size = 0
 	}
     in
 	ret
     end
 
 (* all of the other methods of the Java class are getters and setters *)
+
+fun getSize ({size=n, ...} : t) = 
+    n
+
+fun incSize ({numFeatures=nF, features=fs, size=n} : t) =
+    {numFeatures=nF, features=fs, size=n+1}
+    
+fun resetSize ({numFeatures=nF, features=fs, size=n}) =
+    let 
+	val realN = Real.fromInt n
+    in
+	{
+	  numFeatures = nF, 
+	  features = map (fn f => f/realN) fs ,
+	  size = 0
+	}		   
+    end
 
 fun transpose [] = []
   | transpose ([]::_) = []
@@ -121,6 +146,17 @@ fun pointsToFeatureList (points : t list) =
 	transpose featuresByPoint
     end
 
+fun add ({features=f1s, ...} : t, {features=f2s, ...} : t) =
+    let
+	fun sum (f1::f1s, f2::f2s, acc) =
+	    sum(f1s, f2s, (f1 + f2) :: acc)
+	  | sum ([], [], acc) = List.rev acc
+	  | sum (_, [], _) = raise NotEnoughFeatures
+	  | sum ([], _, _) = raise NotEnoughFeatures
+    in
+	pointFromList (sum(f1s, f2s, []))
+    end
+
 
 end
 (* Unit Tests *)
@@ -135,3 +171,13 @@ val p3 = Point.featureListToPoints listToZip
 val _ = app Point.printPoint p3
 
 val featureList = Point.pointsToFeatureList p3
+
+val p6 = Point.pointFromList [6.0, 7.0, 8.0, 9.0]
+val p7 = Point.add (p6, p2)
+val _ = Point.printPoint p7
+
+val s1 = Point.getSize p2
+val s2 = Point.getSize (Point.incSize p2)
+val _ = Point.printPoint (Point.incSize p2)
+
+val s3 = Point.resetSize (Point.incSize (Point.incSize p2))
