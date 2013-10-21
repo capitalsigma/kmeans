@@ -10,14 +10,14 @@ structure Normal :> NORMAL = struct
 
 
 (* helper function for work(), as in the Java *)
-fun accumulate (index, pointAdded, clusterCenters) = 
+fun accumulate (index, pointAdded, oldClusters, newClusters) = 
     let
-	val toUpdate = List.nth(clusterCenters, index)
-	val updated = Point.sum(toUpdate, pointAdded)
+	val toUpdate = List.nth(oldClusters, index)
+	val updated = Point.add(toUpdate, pointAdded)
     in
-	List.take(clusterCenters, index) @
-	(Point.incSize updated) @
-	List.drop(clusterCenters, index + 1)
+	List.take(newClusters, index) @
+	[(Point.incSize updated)] @
+	List.drop(newClusters, index + 1)
     end
 
 (* find new cluster centers *)
@@ -30,8 +30,7 @@ fun accumulate (index, pointAdded, clusterCenters) =
 (*    4. divide all of the features of the new point by this counter *)
 (*    5. return the new list of cluster centers *)
 fun work (points, clusterCenters) = 
-    let
-	
+    let	
 	fun loop (p::ps, clusterCenters) =
 	    loop (ps, 
 		  accumulate(CommonUtil.findNearestPoint(p, clusterCenters),
@@ -52,8 +51,9 @@ fun initializeClusters (points, nClusters, randomPtr) =
 	val nPoints = length(points)
 	fun newCluster (0, acc) = List.rev acc
 	  | newCluster (index, acc) = 
-	    newCLuster (index - 1,
-			List.nth (points, randomPtr.randInt % nPoints) :: acc)
+	    newCluster (index - 1,
+			List.nth (points, 
+				  Random.randInt (randomPtr) mod nPoints) :: acc)
     in
 	newCluster (nClusters, [])
     end
@@ -76,7 +76,7 @@ fun execute (points : Point.t list,
 	(* just update all of them *)
 	fun loop (10, clusterCenters) = clusterCenters
 	  | loop (index, clusterCenters) = 
-	    looop(index + 1, work(points, clusterCenters))	    
+	    loop(index + 1, work(points, clusterCenters))	    
     in
 	loop (0, initialClusters)
     end
@@ -87,11 +87,15 @@ end
 (* unit tests  *)
 val realList = [[1.0, 1.0], [2.0, 2.0], [3.0, 3.0], [4.0, 4.0]]
 
-val dataSet = map Point.listToPoint realList
+val dataSet = map Point.pointFromList realList
 
-val _ = app Point.printPoint Normal.execute(dataSet, 
-					    2,
-					    1.0,
-					    Random.rand(0, 0))
+(* TODO: the problem here is that you're not giving it a fresh set of  *)
+(* new cluster centers for each iteration of work() -- you started adding *)
+(* this in, but you need to finish it tomorow *)
+
+val _ = app Point.printPoint (Normal.execute(dataSet, 
+					     2,
+					     1.0,
+					     Random.rand(0, 0)))
 					    
 				
