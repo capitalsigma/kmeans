@@ -4,20 +4,27 @@ use "commonUtil.sml";
 (* world needs to know about *)
 signature NORMAL = sig
     val execute : Point.t list * int * real * Random.rand -> Point.t list
+
+(* need to add in other functions for unit tests *)
+
+    val accumulate : int * Point.t * Point.t list * Point.t list -> Point.t list
+
 end
 
 structure Normal :> NORMAL = struct
 
 
 (* helper function for work(), as in the Java *)
-fun accumulate (index, pointAdded, oldClusters, newClusters) = 
+fun accumulate (index, pointAdded, oldClusterCenters, newClusterCenters) = 
     let
-	val toUpdate = List.nth(oldClusters, index)
+	(* i think this fixes my previous problem of accidentally *)
+	(* accumulating everything in the same list *)
+	val toUpdate = List.nth(oldClusterCenters, index)
 	val updated = Point.add(toUpdate, pointAdded)
     in
-	List.take(newClusters, index) @
+	List.take(newClusterCenters, index) @
 	[(Point.incSize updated)] @
-	List.drop(newClusters, index + 1)
+	List.drop(newClusterCenters, index + 1)
     end
 
 (* find new cluster centers *)
@@ -29,18 +36,23 @@ fun accumulate (index, pointAdded, oldClusters, newClusters) =
 (*         to create the features of the new point *)
 (*    4. divide all of the features of the new point by this counter *)
 (*    5. return the new list of cluster centers *)
-fun work (points, clusterCenters) = 
+fun work (points, oldClusterCenters) = 
     let	
-	fun loop (p::ps, clusterCenters) =
+	fun loop (p::ps, newClusterCenters) =
 	    loop (ps, 
-		  accumulate(CommonUtil.findNearestPoint(p, clusterCenters),
+		  accumulate(CommonUtil.findNearestPoint(p, oldClusterCenters),
 			     p,
-			     clusterCenters))
-	  | loop ([], clusterCenters) = clusterCenters
+			     oldClusterCenters,
+			     newClusterCenters))
+	  | loop ([], newClusterCenters) = newClusterCenters
+	val numFeatures = Point.getNumFeatures(hd oldClusterCenters)
+	val centersForAcc = map (fn x => Point.Point numFeatures) oldClusterCenters
+	val tmp = loop (points, centersForAcc) (* TODO: REMOVE *)
     in
 	(* in the Java, this is handled by Normal.execute *)
 	(* it fits more naturally here *)
-	map Point.resetSize (loop (points, clusterCenters))
+	(app Point.printPoint tmp; 
+	 map Point.resetSize (tmp))
     end
 
 (* here, the Java generates a random number and ignores it with the comment *)
@@ -85,17 +97,36 @@ fun execute (points : Point.t list,
 end 
 	   
 (* unit tests  *)
-val realList = [[1.0, 1.0], [2.0, 2.0], [3.0, 3.0], [4.0, 4.0]]
-
-val dataSet = map Point.pointFromList realList
 
 (* TODO: the problem here is that you're not giving it a fresh set of  *)
 (* new cluster centers for each iteration of work() -- you started adding *)
 (* this in, but you need to finish it tomorow *)
 
-val _ = app Point.printPoint (Normal.execute(dataSet, 
-					     2,
-					     1.0,
-					     Random.rand(0, 0)))
-					    
-				
+functor NormalUnitTest (N : NORMAL) =
+	struct
+	open N
+
+
+	val realList = [[1.0, 1.0], [2.0, 2.0], [3.0, 3.0], [4.0, 4.0]]
+	val onePoint = Point.pointFromList [1.5, 1.5]
+	val dataSet = map Point.pointFromList realList				
+	val blankDataSet = map (fn x => Point.Point 2) [1, 2, 3]
+			
+	fun printOut (points) = 
+	     app Point.printPoint points
+	  
+	fun testAccumulate () = 
+	    printOut (accumulate (0, onePoint, dataSet, blankDataSet))
+	    
+
+	fun testExecute () = 
+	    printOut (Normal.execute(dataSet, 
+				     2,
+				     1.0,
+				     Random.rand(0, 0)))
+		     
+	end
+
+structure TestNormal = NormalUnitTest(Normal)
+
+

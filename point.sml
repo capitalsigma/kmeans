@@ -17,6 +17,8 @@ signature POINT = sig
     val getSize : t -> int
     val incSize : t -> t
     val resetSize : t -> t
+
+    val getNumFeatures : t -> int
 end
 
 structure Point :> POINT = struct 
@@ -119,6 +121,10 @@ fun resetSize ({numFeatures=nF, features=fs, size=n}) =
 	  size = 0
 	}		   
     end
+
+fun getNumFeatures({numFeatures=nF, ...} : t) =
+    nF
+
 
 fun transpose [] = []
   | transpose ([]::_) = []
