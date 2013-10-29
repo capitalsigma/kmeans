@@ -152,7 +152,10 @@ fun pointsToFeatureList (points : t list) =
 	transpose featuresByPoint
     end
 
-fun add ({features=f1s, ...} : t, {features=f2s, ...} : t) =
+(* we add the sizes up here, as well, which isn't completely intuitive *)
+(* but it makes the code simpler *)
+fun add ({features=f1s, numFeatures = nF1, size=s1} : t, 
+	 {features=f2s, numFeatures = nF2, size=s2} : t) =
     let
 	fun sum (f1::f1s, f2::f2s, acc) =
 	    sum(f1s, f2s, (f1 + f2) :: acc)
@@ -160,30 +163,52 @@ fun add ({features=f1s, ...} : t, {features=f2s, ...} : t) =
 	  | sum (_, [], _) = raise NotEnoughFeatures
 	  | sum ([], _, _) = raise NotEnoughFeatures
     in
-	pointFromList (sum(f1s, f2s, []))
+	{features=sum(f1s, f2s, []), numFeatures = nF1, size=s1 + s2}
     end
 
 
 end
 (* Unit Tests *)
-val p = Point.Point(5)
-val _ = Point.printPoint(p)
-val p2 = Point.pointFromList([1.0, 2.0, 3.0, 4.0])
-val _ = Point.printPoint(p2)
-val p4 = Point.pointToList(p2)
 
-val listToZip = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]]
-val p3 = Point.featureListToPoints listToZip
-val _ = app Point.printPoint p3
+functor PointUnitTest (P : POINT) = 
+	struct 
+	open P
 
-val featureList = Point.pointsToFeatureList p3
+	(* old tests left in this format *)
+	val p = Point.Point(5)
+	val _ = Point.printPoint(p)
+	val p2 = Point.pointFromList([1.0, 2.0, 3.0, 4.0])
+	val _ = Point.printPoint(p2)
+	val p4 = Point.pointToList(p2)
 
-val p6 = Point.pointFromList [6.0, 7.0, 8.0, 9.0]
-val p7 = Point.add (p6, p2)
-val _ = Point.printPoint p7
+	val listToZip = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]]
+	val p3 = Point.featureListToPoints listToZip
+	val _ = app Point.printPoint p3
 
-val s1 = Point.getSize p2
-val s2 = Point.getSize (Point.incSize p2)
-val _ = Point.printPoint (Point.incSize p2)
+	val featureList = Point.pointsToFeatureList p3
 
-val s3 = Point.resetSize (Point.incSize (Point.incSize p2))
+	val p6 = Point.pointFromList [6.0, 7.0, 8.0, 9.0]
+	val p7 = Point.add (p6, p2)
+	val _ = Point.printPoint p7
+
+	val s1 = Point.getSize p2
+	val s2 = Point.getSize (Point.incSize p2)
+	val _ = Point.printPoint (Point.incSize p2)
+
+	val s3 = Point.resetSize (Point.incSize (Point.incSize p2))
+
+	fun printAns (points) =	   
+	    app (print "------\n";Point.printPoint) points
+
+	fun testAddAndSize () =
+	    let
+		val p2' = Point.incSize (Point.incSize p2)
+	    in
+		printAns [Point.add (p2, p2), Point.add(p2, p2'),
+			  Point.add (p2', p2')]
+	    end
+	end
+
+structure TestPoint = PointUnitTest(Point)
+
+val _ = TestPoint.testAddAndSize ()

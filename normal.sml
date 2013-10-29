@@ -7,23 +7,22 @@ signature NORMAL = sig
 
 (* need to add in other functions for unit tests *)
 
-    val accumulate : int * Point.t * Point.t list * Point.t list -> Point.t list
-
+    val accumulate : int * Point.t * Point.t list -> Point.t list
+    val work : Point.t list * Point.t list -> Point.t list
 end
 
 structure Normal :> NORMAL = struct
 
 
 (* helper function for work(), as in the Java *)
-fun accumulate (index, pointAdded, oldClusterCenters, newClusterCenters) = 
+fun accumulate (index, pointAdded, newClusterCenters) = 
     let
 	(* i think this fixes my previous problem of accidentally *)
 	(* accumulating everything in the same list *)
-	val toUpdate = List.nth(oldClusterCenters, index)
-	val updated = Point.add(toUpdate, pointAdded)
+	val toUpdate = List.nth(newClusterCenters, index)
     in
 	List.take(newClusterCenters, index) @
-	[(Point.incSize updated)] @
+	[Point.incSize (Point.add (pointAdded, toUpdate))] @
 	List.drop(newClusterCenters, index + 1)
     end
 
@@ -42,17 +41,14 @@ fun work (points, oldClusterCenters) =
 	    loop (ps, 
 		  accumulate(CommonUtil.findNearestPoint(p, oldClusterCenters),
 			     p,
-			     oldClusterCenters,
 			     newClusterCenters))
 	  | loop ([], newClusterCenters) = newClusterCenters
 	val numFeatures = Point.getNumFeatures(hd oldClusterCenters)
 	val centersForAcc = map (fn x => Point.Point numFeatures) oldClusterCenters
-	val tmp = loop (points, centersForAcc) (* TODO: REMOVE *)
     in
 	(* in the Java, this is handled by Normal.execute *)
 	(* it fits more naturally here *)
-	(app Point.printPoint tmp; 
-	 map Point.resetSize (tmp))
+	 map Point.resetSize (loop (points, centersForAcc))
     end
 
 (* here, the Java generates a random number and ignores it with the comment *)
@@ -111,12 +107,30 @@ functor NormalUnitTest (N : NORMAL) =
 	val onePoint = Point.pointFromList [1.5, 1.5]
 	val dataSet = map Point.pointFromList realList				
 	val blankDataSet = map (fn x => Point.Point 2) [1, 2, 3]
+	val simpleDataSet = map Point.pointFromList [[1.0], [1.0], [1.0], [1.0]]
 			
 	fun printOut (points) = 
-	     app Point.printPoint points
+	     app (print "-----\n";Point.printPoint) points
 	  
 	fun testAccumulate () = 
-	    printOut (accumulate (0, onePoint, dataSet, blankDataSet))
+	    let
+		fun test (i) = 
+		     printOut (accumulate (i, onePoint, blankDataSet))
+	    in
+		map test [0, 1, 2]
+	    end
+
+	fun testAcc2 () = 
+	    let
+		fun test (0, acc) = acc
+		  | test (i, acc) = test(i-1, accumulate(0, onePoint, acc))
+	    in
+		test (10, blankDataSet)
+	    end
+		
+	fun testWork () = 
+	    printOut (work (dataSet, [Point.Point 2]))
+
 	    
 
 	fun testExecute () = 
@@ -125,8 +139,18 @@ functor NormalUnitTest (N : NORMAL) =
 				     1.0,
 				     Random.rand(0, 0)))
 		     
+	fun testExecSimple () = 
+	    printOut (Normal.execute(simpleDataSet, 1, 1.0, Random.rand(0, 0)))
+
 	end
 
-structure TestNormal = NormalUnitTest(Normal)
 
 
+structure TestNormal = NormalUnitTest(Normal);
+
+
+val _ = TestNormal.testAccumulate ()
+val _ = TestNormal.testWork ()
+(* NB: the cluster centers here get farther away each time,  *)
+val _ = TestNormal.testExecSimple ()
+val _ = TestNormal.testAcc2 ()
