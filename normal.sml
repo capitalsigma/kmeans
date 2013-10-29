@@ -6,7 +6,7 @@ signature NORMAL = sig
     val execute : Point.t list * int * real * Random.rand -> Point.t list
 
 (* need to add in other functions for unit tests *)
-
+ 
     val accumulate : int * Point.t * Point.t list -> Point.t list
     val work : Point.t list * Point.t list -> Point.t list
 end
