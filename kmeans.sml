@@ -27,8 +27,8 @@ fun fileToPoints (path : string) =
 	val fileHandle = TextIO.openIn path
 	fun loadFile (fileHandle) = 
 	    case TextIO.inputLine fileHandle of
-		SOME line => (lineToPoint line) :: (loadFile fileHandle)
-			  | NONE  => []
+		SOME line => ((lineToPoint line) :: (loadFile fileHandle))
+	      | NONE  => []
     in
 	(* parseLines (fileHandle, []) *)
 	rev (loadFile fileHandle)
@@ -60,7 +60,7 @@ functor ParserUnitTest (P : PARSER) =
 
 structure ParserTest = ParserUnitTest (Parser)
 val _ = ParserTest.testLineToPoint ()
-       
+val _ = ParserTest.testFileToPoints ()       
 
 
 (* note: commandline args vary by compiler *)
