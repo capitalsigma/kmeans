@@ -19,6 +19,8 @@ signature POINT = sig
     val resetSize : t -> t
 
     val getNumFeatures : t -> int
+
+    val featuresRepr : t -> string
 end
 
 structure Point :> POINT = struct 
@@ -52,7 +54,17 @@ fun repr({numFeatures = n, features = fs, size = m}) : string =
 	addField(0)
     end
 						   
-	    
+fun featuresRepr ({features=fs, ...} : t) = 
+    let
+	fun foldFeatures(real, string) = 
+	    String.concat([string, " ", (Real.toString real)])
+    in
+	(* foldr here to preserve direction *)
+	foldl foldFeatures "" fs
+    end
+
+
+					    
 
 
 (* convenience function for debugging *)
@@ -109,7 +121,7 @@ fun getSize ({size=n, ...} : t) =
     n
 
 fun incSize ({numFeatures=nF, features=fs, size=n} : t) =
-    {numFeatures=nF, features=fs, size=n+1}
+    {numFeatures=nF, features=fs, size=n + 1}
     
 fun resetSize ({numFeatures=nF, features=fs, size=n}) =
     let 
@@ -207,8 +219,15 @@ functor PointUnitTest (P : POINT) =
 		printAns [Point.add (p2, p2), Point.add(p2, p2'),
 			  Point.add (p2', p2')]
 	    end
+
+	(* fun testFeaturesRepr () =  *)
+	(*     print (featuresRepr p2) *)
+
 	end
+
+
 
 structure TestPoint = PointUnitTest(Point)
 
 val _ = TestPoint.testAddAndSize ()
+(* val _ = TestPoint.testFeaturesRepr () *)
