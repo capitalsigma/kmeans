@@ -1,5 +1,3 @@
-use "point.sml";
-
 structure CommonUtil = struct
 
 (* the Java defines this as the sum from i = 0 to numFeatures of*)
@@ -38,12 +36,3 @@ fun findNearestPoint(point, clusters) =
     end
 		    
 end
-
-			   
-(* unit tests *)
-
-val [p1, p2] = map Point.pointFromList [[1.0, 1.0], [0.0, 0.0]]
-val eucDist = CommonUtil.euclidDist(p1, p2)
-
-val p3 = Point.pointFromList [2.0, 1.0]
-val nearest = CommonUtil.findNearestPoint(p3, [p1, p2])

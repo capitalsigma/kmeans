@@ -1,6 +1,3 @@
-use "point.sml";
-use "normal.sml";
-
 structure Cluster = struct
 
 (* this may be unnecessary *)
@@ -56,9 +53,10 @@ fun execute(points : Point.t list,
 	    maxClusters : int,
 	    threshold : real) = 
     let
-	val normalizedPoints = zscoreTransform(points)		
-	val sec = Int.fromLarge (Time.toSeconds (Time.now()))
-	val usec = Int.fromLarge (Time.toMicroseconds (Time.now()))
+	val normalizedPoints = zscoreTransform(points)	
+	fun convert time = Int.fromLarge (Int.toLarge (Option.valOf Int.maxInt))
+	val sec = convert (Time.toSeconds (Time.now()))
+	val usec = convert (Time.toMicroseconds (Time.now()))
 	val randomPtr = Random.rand(sec, usec)
 	val clusterRange = List.tabulate (maxClusters - minClusters + 1, 
 					  fn i => minClusters + i)
@@ -76,19 +74,3 @@ fun execute(points : Point.t list,
     end	
 end
 
-(* unit tests *)
-val listOfReals = [[1.0, 1.0, 1.0],
-		   [2.0, 2.0, 2.0],
-		   [1.0, 2.0, 3.0]]
-
-val extractedMoments = map Cluster.extractMoments listOfReals
-
-val pointList = map Point.pointFromList 
-		    [[1.0, 1.0, 1.0],
-		     [2.0, 2.0, 2.0],
-		     [1.0, 2.0, 3.0]]
-		
-(* TODO: thse results are pretty weird (negative values for features) but *)
-(* they seem to be following the Java. Check? *)
-val normalizedPoints = Cluster.zscoreTransform pointList
-val _ = app Point.printPoint normalizedPoints

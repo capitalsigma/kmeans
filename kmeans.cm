@@ -1,0 +1,30 @@
+
+Library 
+	structure Parser
+	structure KMeans
+	signature PARSER
+	signature KMEANS
+
+	structure Cluster
+
+	structure CommonUtil
+
+	structure Normal
+	signature NORMAL
+
+	structure Point
+	signature POINT
+
+is
+	kmeans.sml
+	
+	cluster.sml
+	
+	commonUtil.sml
+
+	normal.sml
+
+	point.sml
+
+	$/basis.cm
+	$/smlnj-lib.cm

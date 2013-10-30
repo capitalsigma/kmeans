@@ -1,5 +1,3 @@
-use "commonUtil.sml";
-
 (* we use this sig for information hiding, "execute" is all the outside *)
 (* world needs to know about *)
 signature NORMAL = sig
@@ -91,66 +89,3 @@ fun execute (points : Point.t list,
 
 end 
 	   
-(* unit tests  *)
-
-(* TODO: the problem here is that you're not giving it a fresh set of  *)
-(* new cluster centers for each iteration of work() -- you started adding *)
-(* this in, but you need to finish it tomorow *)
-
-functor NormalUnitTest (N : NORMAL) =
-	struct
-	open N
-
-
-	val realList = [[1.0, 1.0], [2.0, 2.0], [3.0, 3.0], [4.0, 4.0]]
-	val onePoint = Point.pointFromList [1.5, 1.5]
-	val dataSet = map Point.pointFromList realList				
-	val blankDataSet = map (fn x => Point.Point 2) [1, 2, 3]
-	val simpleDataSet = map Point.pointFromList [[1.0], [1.0], [1.0], [1.0]]
-			
-	fun printOut (points) = 
-	     app (print "-----\n";Point.printPoint) points
-	  
-	fun testAccumulate () = 
-	    let
-		fun test (i) = 
-		     printOut (accumulate (i, onePoint, blankDataSet))
-	    in
-		map test [0, 1, 2]
-	    end
-
-	fun testAcc2 () = 
-	    let
-		fun test (0, acc) = acc
-		  | test (i, acc) = test(i-1, accumulate(0, onePoint, acc))
-	    in
-		test (10, blankDataSet)
-	    end
-		
-	fun testWork () = 
-	    printOut (work (dataSet, [Point.Point 2]))
-
-	    
-
-	fun testExecute () = 
-	    printOut (Normal.execute(dataSet, 
-				     2,
-				     1.0,
-				     Random.rand(0, 0)))
-		     
-	fun testExecSimple () = 
-	    printOut (Normal.execute(simpleDataSet, 1, 1.0, Random.rand(0, 0)))
-
-	end
-
-
-
-structure TestNormal = NormalUnitTest(Normal);
-
-
-val _ = TestNormal.testAccumulate ()
-val _ = TestNormal.testWork ()
-(* NB: the cluster centers here get farther away each time,  *)
-val _ = TestNormal.testExecSimple ()
-val _ = TestNormal.testAcc2 ()
-val _ = TestNormal.testExecute ()

@@ -1,6 +1,3 @@
-use "point.sml";
-use "cluster.sml";
-
 signature PARSER = sig
     val lineToPoint : string -> Point.t 
 
@@ -39,29 +36,6 @@ fun fileToPoints (path : string) =
 
 end
 
-functor ParserUnitTest (P : PARSER) = 
-	struct
-	open P
-
-	val testLine = "1 1.0 2.0 3.0 4.0"
-			   
-	fun printAns (points) =	   
-	    (print "------\n";
-	     app Point.printPoint points)
-
-
-	fun testLineToPoint () = 
-	    printAns [lineToPoint testLine]
-		     
-	fun testFileToPoints () = 
-	    printAns (fileToPoints "color100")
-
-	end
-
-
-(* structure ParserTest = ParserUnitTest (Parser) *)
-(* val _ = ParserTest.testLineToPoint () *)
-(* val _ = ParserTest.testFileToPoints ()        *)
 
 signature KMEANS = sig
     val KMeans : string * int * int * int -> Point.t list list
@@ -79,11 +53,6 @@ fun KMeans (filePath, minClusters : int, maxClusters : int, nThreads) =
 
 end
 
-(* note: commandline args vary by compiler *)
-(* MLton/general usage = CommandLine.arguments -> string array *)
-(*      doesn't include 0th argument *)
-(* SML/NJ = SMLofNJ.getArgs() -> string array *)
-
 (* args need to be: file, minClusters, maxClusters, nthreads *)
 fun main (argv) = 
     (* neither the C nor the Java seem to actually do any comparisons to *)
@@ -91,26 +60,27 @@ fun main (argv) =
     (* just always returns maxClusters and the last result it calculated *)
     let
 	exception BadArgs
-	fun procArgs [filePath, minClusterStr, maxClusterStr, nThreadsStr] =
+	fun procArgs (argList) = 
 	    let
 		fun toInt x = (Option.valOf o Int.fromString) x
+		val filePath = hd argList
 		val [minClusters, maxClusters, nThreads] = 
-		    map toInt [minClusterStr, maxClusterStr, nThreadsStr]
+		    (map toInt (tl argList))
 	    in
 		KMeans.KMeans(filePath, minClusters, maxClusters, nThreads)
 	    end
     in
     (case length argv of 
-	 4 => (procArgs CommandLine.arguments())
-      |   _ => raise BadArgs)
+	 4 => (procArgs (CommandLine.arguments()))
+       |   _ => raise BadArgs)
     end
 
 fun printResults points = 
-    let
+    let	
 	fun printSpaceDelimited (i, p) = 
-	    print (String.concat [i, " ", p])
+	    print (String.concat [(Int.toString i), " ", p])
 	fun loop (i, p::ps) = 
-	    (PrintSpaceDelimited (i, p);
+	    (printSpaceDelimited (i, p);
 	     loop(i + 1, ps))
 	  | loop (i, []) = 
 	    ()
@@ -120,4 +90,5 @@ fun printResults points =
 	     
 	
 
-val _ = main(CommandLine.arguments())
+(* val _ = main(CommandLine.arguments()) *)
+
