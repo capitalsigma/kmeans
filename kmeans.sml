@@ -9,12 +9,12 @@ structure Parser :> PARSER = struct
 (* string -> Point.t *)
 fun lineToPoint (line) = 
     let
-	(* input is whitespace delimited *)
-	val linums::features = String.tokens Char.isSpace line
+		(* input is whitespace delimited *)
+		val linums::features = String.tokens Char.isSpace line
     in
-	(* "tl" here because the first number is a line counter in their  *)
-	(* data *)
-	Point.pointFromList (map (Option.valOf o Real.fromString) features)
+		(* "tl" here because the first number is a line counter in their  *)
+		(* data *)
+		Point.pointFromList (map (Option.valOf o Real.fromString) features)
     end
 
 (* note that the Java follows the C in doing two passes over the file: one *)
@@ -22,15 +22,15 @@ fun lineToPoint (line) =
 (* them. i've done it with one here *)
 fun fileToPoints (path : string) = 
     let
-	val fileHandle = TextIO.openIn path
-	fun loadFile (fileHandle) = 
-	    (case TextIO.inputLine fileHandle of
-		 SOME line => ((lineToPoint line) :: (loadFile fileHandle))
-	       | NONE  => [])
+		val fileHandle = TextIO.openIn path
+		fun loadFile (fileHandle) = 
+			(case TextIO.inputLine fileHandle of
+				 SOME line => ((lineToPoint line) :: (loadFile fileHandle))
+			   | NONE  => [])
     in
-	(* parseLines (fileHandle, []) *)
-	rev (loadFile fileHandle) 
-	before TextIO.closeIn fileHandle
+		(* parseLines (fileHandle, []) *)
+		rev (loadFile fileHandle) 
+		before TextIO.closeIn fileHandle
     end
 
 
@@ -45,10 +45,10 @@ structure KMeans :> KMEANS = struct
 
 fun KMeans (filePath, minClusters : int, maxClusters : int, nThreads) = 
     let 
-	val dataSet = Parser.fileToPoints filePath
+		val dataSet = Parser.fileToPoints filePath
     in 
-	(* we're throwing away nThreads here because we have no use for it *)
-	Cluster.execute (dataSet, minClusters, maxClusters, 1.0)
+		(* we're throwing away nThreads here because we have no use for it *)
+		Cluster.execute (dataSet, minClusters, maxClusters, 1.0)
     end
 
 end
@@ -59,36 +59,36 @@ fun main (argv) =
     (* figure out what the "best" cluster centers are, it looks like it  *)
     (* just always returns maxClusters and the last result it calculated *)
     let
-	exception BadArgs
-	fun procArgs (argList) = 
-	    let
-		fun toInt x = (Option.valOf o Int.fromString) x
-		val filePath = hd argList
-		val [minClusters, maxClusters, nThreads] = 
-		    (map toInt (tl argList))
-	    in
-		KMeans.KMeans(filePath, minClusters, maxClusters, nThreads)
-	    end
+		exception BadArgs
+		fun procArgs (argList) = 
+			let
+				fun toInt x = (Option.valOf o Int.fromString) x
+				val filePath = hd argList
+				val [minClusters, maxClusters, nThreads] = 
+					(map toInt (tl argList))
+			in
+				KMeans.KMeans(filePath, minClusters, maxClusters, nThreads)
+			end
     in
-    (case length argv of 
-	 4 => (procArgs (CommandLine.arguments()))
-       |   _ => raise BadArgs)
+		(case length argv of 
+			 4 => (procArgs (CommandLine.arguments()))
+		  |   _ => raise BadArgs)
     end
 
 fun printResults points = 
     let	
-	fun printSpaceDelimited (i, p) = 
-	    print (String.concat [(Int.toString i), " ", p])
-	fun loop (i, p::ps) = 
-	    (printSpaceDelimited (i, p);
-	     loop(i + 1, ps))
-	  | loop (i, []) = 
-	    ()
+		fun printSpaceDelimited (i, p) = 
+			print (String.concat [(Int.toString i), " ", p])
+		fun loop (i, p::ps) = 
+			(printSpaceDelimited (i, p);
+			 loop(i + 1, ps))
+		  | loop (i, []) = 
+			()
     in
-	loop (0, points)
+		loop (0, points)
     end
-	     
-	
+	    
+		
 
-(* val _ = main(CommandLine.arguments()) *)
+		(* val _ = main(CommandLine.arguments()) *)
 
