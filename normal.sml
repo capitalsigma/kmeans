@@ -1,7 +1,7 @@
 (* we use this sig for information hiding, "execute" is all the outside *)
 (* world needs to know about *)
 signature NORMAL = sig
-    val execute : Point.t list * int * real * Random.rand -> Point.t list
+    val execute : Point.t list * int * real * Random.rand * bool -> Point.t list
 
 	(* need to add in other functions for unit tests *)
     val accumulate : int * Point.t * Point.t list -> Point.t list
@@ -51,14 +51,21 @@ fun work (points, oldClusterCenters) =
 (* here, the Java generates a random number and ignores it with the comment *)
 (* "//to test the correctness" --> line 139 *)
 (* the Java lets the random value = nClusters - index - 1 *)
-fun initializeClusters (points, nClusters, randomPtr) =
+fun initializeClusters (points, nClusters, randomPtr, debug) =
     let
 		val nPoints = length(points)
+		fun setCenter index = 
+			(* following the "testing for correctness" in github version of *)
+			(* the Java *)
+			if debug then
+				(index - 1) 
+			else
+				(Random.randInt (randomPtr) mod nPoints)
 		fun newCluster (0, acc) = List.rev acc
 		  | newCluster (index, acc) = 
 			newCluster (index - 1,
 						List.nth (points, 
-								  Random.randInt (randomPtr) mod nPoints) :: acc)
+								 (setCenter index)) :: acc)
     in
 		newCluster (nClusters, [])
     end

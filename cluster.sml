@@ -13,7 +13,7 @@ fun extractMoments (singleVariable) =
 		(zerothMoment, firstMoment)
     end
 
-fun zscoreTransform (points : Point.t list) = 
+fun zscoreTransform (points : Point.t list, debug) = 
     let
 		(* singleFeatureNormalize = one iteration of the outer for loop *)
 		(* singleFeatures collects attributes from each point *)
@@ -22,11 +22,17 @@ fun zscoreTransform (points : Point.t list) =
 				val (m0, m1) = extractMoments(singleFeatures) 
 				val zerothMoment = m0
 				val firstMoment = Math.sqrt(m1)
-				(* debugging *)
-				val _ = (app (fn x => print (String.concat([(Real.toString x), " "]))) [m0, m1];
-						 print "-------\n")
 				fun normalize(singleFeatures) =
 					(singleFeatures - zerothMoment) / firstMoment
+				(* debugging *)
+				val _ = if debug then
+							(app 
+								 (fn x => 
+									 print (String.concat([(Real.toString x), " "]))) 
+								 [m0, m1];
+							 print "-------\n")
+						else 
+							()
 			in
 				map normalize singleFeatures
 			end
@@ -50,7 +56,7 @@ fun execute(points : Point.t list,
 			threshold : real,
 			debug : bool) = 
     let
-		val normalizedPoints = zscoreTransform(points)	
+		val normalizedPoints = zscoreTransform(points, debug)	
 		fun convert time = Int.fromLarge (Int.toLarge (Option.valOf Int.maxInt))
 		val sec = convert (Time.toSeconds (Time.now()))
 		val usec = convert (Time.toMicroseconds (Time.now()))

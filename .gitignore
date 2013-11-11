@@ -4,3 +4,5 @@
 .out
 .emacs
 .cm
+/.emacs.desktop
+/.#.emacs.desktop
