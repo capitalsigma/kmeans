@@ -12,7 +12,7 @@ structure Normal :> NORMAL = struct
 
 
 (* helper function for work(), as in the Java *)
-fun accumulate (index, pointAdded, newClusterCenters) = 
+fun accumulate (index, pointAdded, newClusterCenters, debug) = 
     let
 		(* i think this fixes my previous problem of accidentally *)
 		(* accumulating everything in the same list *)
@@ -32,13 +32,14 @@ fun accumulate (index, pointAdded, newClusterCenters) =
 (*         to create the features of the new point *)
 (*    4. divide all of the features of the new point by this counter *)
 (*    5. return the new list of cluster centers *)
-fun work (points, oldClusterCenters) = 
+fun work (points, oldClusterCenters, debug) = 
     let	
 		fun loop (p::ps, newClusterCenters) =
 			loop (ps, 
 				  accumulate(CommonUtil.findNearestPoint(p, oldClusterCenters),
 							 p,
-							 newClusterCenters))
+							 newClusterCenters, 
+							 debug))
 		  | loop ([], newClusterCenters) = newClusterCenters
 		val numFeatures = Point.getNumFeatures(hd oldClusterCenters)
 		val centersForAcc = map (fn x => Point.Point numFeatures) oldClusterCenters
@@ -70,6 +71,7 @@ fun initializeClusters (points, nClusters, randomPtr, debug) =
 		newCluster (nClusters, [])
     end
 		
+
 (* github.com/daveboutcher/stamp-mp/blob/master/kmeans/normal.c *)
 (* github.com/dpj/DPJ/blob/master/Benchmarks/Applications/KMeans/dpj/Normal.java *)
 (* NB, the Java has changed from the C: *)
@@ -83,13 +85,43 @@ fun execute (points : Point.t list,
 			 randomPtr : Random.rand,
 			 debug : bool) =
     let
+		(* helper function for debugging *)
+		fun printIterationInfo (index, points) =
+			let
+				(* string -> int -> string -> string list -> string *)
+				val fmt = StringPrintf.format 
+						  (StringPrintf.STR o 
+						   StringPrintf.INT o 
+						   StringPrintf.STR o 
+						   (StringPrintf.LIST StringPrintf.STR))
+			in
+				print(fmt "\nLoop iteration index: " 
+						  index 
+						  "\npoints: " 
+						  (map Point.repr points))
+					
+			end				   
 		val initialClusters = initializeClusters(points, nClusters, randomPtr, debug)
 		(* here, the Java only updates a cluster center if a global variable *)
 		(* has marked it as "dirty." i think the more sml-ish approach is to *)
 		(* just update all of them *)
-		fun loop (10, clusterCenters) = clusterCenters
+		fun loop (10, clusterCenters) = 
+			if debug then
+				(printIterationInfo (10, clusterCenters);
+				clusterCenters)
+			else
+				clusterCenters
 		  | loop (index, clusterCenters) = 
-			loop(index + 1, work(points, clusterCenters))	    
+			(* wow, adding logging is cumbersome... *)
+			let
+				val ans = work(points, clusterCenters, debug)
+			in
+				if debug then
+					(printIterationInfo (index, ans);
+					 loop (index + 1, ans))
+				else 
+					loop(index + 1, ans)	    
+			end
     in
 		loop (0, initialClusters)
     end

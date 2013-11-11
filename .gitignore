@@ -6,3 +6,6 @@
 .cm
 /.emacs.desktop
 /.#.emacs.desktop
+/format-lib/#string-printf.sig#
+/format-lib/.#string-printf.sig
+/#.emacs.desktop#
