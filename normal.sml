@@ -4,23 +4,44 @@ signature NORMAL = sig
     val execute : Point.t list * int * real * Random.rand * bool -> Point.t list
 
 	(* need to add in other functions for unit tests *)
-    val accumulate : int * Point.t * Point.t list -> Point.t list
-    val work : Point.t list * Point.t list -> Point.t list
+    val accumulate : int * Point.t * Point.t list * bool -> Point.t list
+    val work : Point.t list * Point.t list * bool -> Point.t list
 end
 
 structure Normal :> NORMAL = struct
+
+(* string -> int -> string -> string list -> string *)
+(* ie printf("%s %i %s") + a for loop + printf("%s") *)
+val genericDebugFmt  =
+	StringPrintf.format 
+		(StringPrintf.STR o 
+		 StringPrintf.INT o 
+		 StringPrintf.STR o 
+		 (StringPrintf.LIST StringPrintf.STR))
 
 
 (* helper function for work(), as in the Java *)
 fun accumulate (index, pointAdded, newClusterCenters, debug) = 
     let
+		(* debugging function *)
+		fun printIterationInfo () =
+			print(genericDebugFmt
+					  "\nIndex of nearest cluster center: "
+					  index
+					  (String.concat ["\npoint to add: ", (Point.featuresRepr pointAdded),
+									  "\ncurrent cluster centers: "])
+					  (map Point.featuresSizeRepr newClusterCenters))
+		val _ = if debug then
+					printIterationInfo () 
+				else
+					()
 		(* i think this fixes my previous problem of accidentally *)
 		(* accumulating everything in the same list *)
 		val toUpdate = List.nth(newClusterCenters, index)
     in
-		List.take(newClusterCenters, index) @
-		[Point.incSize (Point.add (pointAdded, toUpdate))] @
-		List.drop(newClusterCenters, index + 1)
+		List.concat[List.take(newClusterCenters, index),
+					[Point.incSize (Point.add (pointAdded, toUpdate))],
+					List.drop(newClusterCenters, index + 1)]
     end
 
 (* find new cluster centers *)
@@ -87,20 +108,10 @@ fun execute (points : Point.t list,
     let
 		(* helper function for debugging *)
 		fun printIterationInfo (index, points) =
-			let
-				(* string -> int -> string -> string list -> string *)
-				val fmt = StringPrintf.format 
-						  (StringPrintf.STR o 
-						   StringPrintf.INT o 
-						   StringPrintf.STR o 
-						   (StringPrintf.LIST StringPrintf.STR))
-			in
-				print(fmt "\nLoop iteration index: " 
-						  index 
-						  "\npoints: " 
-						  (map Point.repr points))
-					
-			end				   
+			print(genericDebugFmt "\nLoop iteration index: " 
+								  index 
+								  "\npoints: " 
+								  (map Point.featuresRepr points))					
 		val initialClusters = initializeClusters(points, nClusters, randomPtr, debug)
 		(* here, the Java only updates a cluster center if a global variable *)
 		(* has marked it as "dirty." i think the more sml-ish approach is to *)

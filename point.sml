@@ -21,6 +21,7 @@ signature POINT = sig
     val getNumFeatures : t -> int
 
     val featuresRepr : t -> string
+	val featuresSizeRepr : t -> string
 end
 
 structure Point :> POINT = struct 
@@ -37,55 +38,6 @@ type t = {
     features : real list,
     size : int
 }
-
-fun repr({numFeatures = n, features = fs, size = m}) : string =
-    let 
-	fun foldReals(real, string) = 
-	    string ^ Real.toString(real) ^ ", "
-	fun addField (0) : string =
-	    "numFeatures: " ^ Int.toString(n) ^ "\n" ^ addField(1)
-	  | addField (1)  = 
-	    (foldl foldReals "features: " fs) ^ "\n" ^ addField(2)
-	  | addField (2) : string = 
-	    "size: " ^ Int.toString(m) ^ "\n"
-	  | addField (_) =
-	     raise InvalidFieldIndex
-    in
-	addField(0)
-    end
-						   
-fun featuresRepr ({features=fs, ...} : t) = 
-    let
-	fun foldFeatures(real, string) = 
-	    String.concat([string, " ", (Real.toString real)])
-    in
-	(* foldr here to preserve direction *)
-	foldl foldFeatures "" fs
-    end
-
-
-					    
-
-
-(* convenience function for debugging *)
-fun printPoint(p) =
-    let
-	val res = repr(p) ^ "\n"
-    in
-	print res
-    end
-
-fun printPointList(ps) = 
-    let 
-	val lenStr = Int.toString(length(ps))
-	val startStr = "Printing point list of length: " ^ lenStr ^ "\n" 
-	val endStr = "-------------\n"
-    in
-	(print startStr;
-	 app printPoint ps;
-	 print endStr)
-    end
-
 
 (* methods are t, ... -> t functions contained in the *)
 (* Point structure, public methods are in the signature *)
@@ -176,6 +128,63 @@ fun add ({features=f1s, numFeatures = nF1, size=s1} : t,
 	  | sum ([], _, _) = raise NotEnoughFeatures
     in
 	{features=sum(f1s, f2s, []), numFeatures = nF1, size=s1 + s2}
+    end
+
+
+(* debugging convenience functions *)
+fun repr({numFeatures = n, features = fs, size = m}) : string =
+    let 
+	fun foldReals(real, string) = 
+	    string ^ Real.toString(real) ^ ", "
+	fun addField (0) : string =
+	    "numFeatures: " ^ Int.toString(n) ^ "\n" ^ addField(1)
+	  | addField (1)  = 
+	    (foldl foldReals "features: " fs) ^ "\n" ^ addField(2)
+	  | addField (2) : string = 
+	    "size: " ^ Int.toString(m) ^ "\n"
+	  | addField (_) =
+	     raise InvalidFieldIndex
+    in
+	addField(0)
+    end
+						   
+fun featuresRepr ({features=fs, ...} : t) = 
+    let
+	fun foldFeatures(real, string) = 
+	    String.concat([string, " ", (Real.toString real)])
+    in
+		(* foldl here to preserve order *)
+		(foldl foldFeatures "[" fs) ^ "]"
+    end
+					    
+fun featuresSizeRepr (point : t) =
+	let
+		val fs = featuresRepr (point)
+	in
+		String.concat ["{ size: ", 
+					   Int.toString(getSize point), 
+					   " features: ", 
+					   fs, " }\n"]
+	end
+
+
+(* convenience function for debugging *)
+fun printPoint(p) =
+    let
+	val res = repr(p) ^ "\n"
+    in
+	print res
+    end
+
+fun printPointList(ps) = 
+    let 
+	val lenStr = Int.toString(length(ps))
+	val startStr = "Printing point list of length: " ^ lenStr ^ "\n" 
+	val endStr = "-------------\n"
+    in
+		(print startStr;
+		 app printPoint ps;
+		 print endStr)
     end
 
 
