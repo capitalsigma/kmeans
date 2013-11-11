@@ -38,17 +38,18 @@ end
 
 
 signature KMEANS = sig
-    val KMeans : string * int * int * int -> Point.t list list
+    val KMeans : string * int * int * int * real * bool -> Point.t list list
 end
 
 structure KMeans :> KMEANS = struct
 
-fun KMeans (filePath, minClusters : int, maxClusters : int, nThreads) = 
+fun KMeans (filePath, minClusters, maxClusters, nThreads, threshold, debug) = 
     let 
 		val dataSet = Parser.fileToPoints filePath
     in 
 		(* we're throwing away nThreads here because we have no use for it *)
-		Cluster.execute (dataSet, minClusters, maxClusters, 1.0)
+		(* threshold is also not used *)
+		Cluster.execute (dataSet, minClusters, maxClusters, 1.0, debug)
     end
 
 end
@@ -67,7 +68,8 @@ fun main (argv) =
 				val [minClusters, maxClusters, nThreads] = 
 					(map toInt (tl argList))
 			in
-				KMeans.KMeans(filePath, minClusters, maxClusters, nThreads)
+				(* default to debug mode off, threshold (unused) = 1.0 *)
+				KMeans.KMeans(filePath, minClusters, maxClusters, nThreads, 1.0, false)
 			end
     in
 		(case length argv of 

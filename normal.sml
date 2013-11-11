@@ -73,9 +73,10 @@ fun initializeClusters (points, nClusters, randomPtr) =
 fun execute (points : Point.t list,
 			 nClusters : int,
 			 threshold : real,
-			 randomPtr : Random.rand) =
+			 randomPtr : Random.rand,
+			 debug : bool) =
     let
-		val initialClusters = initializeClusters(points, nClusters, randomPtr)
+		val initialClusters = initializeClusters(points, nClusters, randomPtr, debug)
 		(* here, the Java only updates a cluster center if a global variable *)
 		(* has marked it as "dirty." i think the more sml-ish approach is to *)
 		(* just update all of them *)

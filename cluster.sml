@@ -47,7 +47,8 @@ fun zscoreTransform (points : Point.t list) =
 fun execute(points : Point.t list,	
 			minClusters : int,
 			maxClusters : int,
-			threshold : real) = 
+			threshold : real,
+			debug : bool) = 
     let
 		val normalizedPoints = zscoreTransform(points)	
 		fun convert time = Int.fromLarge (Int.toLarge (Option.valOf Int.maxInt))
@@ -60,7 +61,8 @@ fun execute(points : Point.t list,
 			Normal.execute(normalizedPoints,
 						   nClusters,
 						   threshold,
-						   randomPtr)
+						   randomPtr,
+						   debug)
 
     in
 		(* this needs to change to select the best centers out of all *)
