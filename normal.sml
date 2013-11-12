@@ -113,6 +113,9 @@ fun execute (points : Point.t list,
 								  "\npoints: " 
 								  (map Point.featuresRepr points))					
 		val initialClusters = initializeClusters(points, nClusters, randomPtr, debug)
+		val _ = if debug then
+					printIterationInfo (~1, initialClusters)
+				else ()
 		(* here, the Java only updates a cluster center if a global variable *)
 		(* has marked it as "dirty." i think the more sml-ish approach is to *)
 		(* just update all of them *)
