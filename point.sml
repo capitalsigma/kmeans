@@ -14,7 +14,7 @@ signature POINT = sig
 
     val add : t * t -> t
 
-	val mapOnFeatures : (real list -> t) * t -> t
+	val mapOnFeatures : (real -> real) * t -> t
     val getNumFeatures : t -> int
 
 end
@@ -47,7 +47,7 @@ functor ClusterCenterFunctor (P: POINT) =
 		(* TODO: does this recalculate Int.toReal every time? *)
 		fun resetSize({Point=p, size=n})= 
 			{
-			  Point = P.mapOnFeatures(fn x => x / (Int.toReal n), p),
+			  Point = P.mapOnFeatures(fn x => x / (Real.fromInt n), p),
 			  size = 0
 			}
 
@@ -80,7 +80,7 @@ fun pointFromList (fs) =
 
 (* all of the other methods of the Java class are getters and setters *)
 		
-fun mapOnFeatures ({features = fs}, operation) = 
+fun mapOnFeatures (operation, {features = fs} : t) : t= 
 	{features = map operation fs}
 
 
@@ -110,7 +110,7 @@ fun pointsToFeatureList (points : t list) =
 	transpose (map pointToList points)
 
 
-fun add ({features=f1s}, {features=f2s}) =
+fun add ({features=f1s} : t, {features=f2s} : t) =
 	{features = ListPair.mapEq op+  (f1s, f2s)}
 		
 	

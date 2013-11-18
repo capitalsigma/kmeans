@@ -24,17 +24,17 @@ val genericDebugFmt  =
 fun accumulate (index, pointAdded, newClusterCenters, debug) = 
     let
 		(* debugging function *)
-		fun printIterationInfo () =
-			print(genericDebugFmt
-					  "\nIndex of nearest cluster center: "
-					  index
-					  (String.concat ["\npoint to add: ", (Point.featuresRepr pointAdded),
-									  "\ncurrent cluster centers: "])
-					  (map Point.featuresSizeRepr newClusterCenters))
-		val _ = if debug then
-					printIterationInfo () 
-				else
-					()
+		(* fun printIterationInfo () = *)
+		(* 	print(genericDebugFmt *)
+		(* 			  "\nIndex of nearest cluster center: " *)
+		(* 			  index *)
+		(* 			  (String.concat ["\npoint to add: ", (Point.featuresRepr pointAdded), *)
+		(* 							  "\ncurrent cluster centers: "]) *)
+		(* 			  (map Point.featuresSizeRepr newClusterCenters)) *)
+		(* val _ = if debug then *)
+		(* 			printIterationInfo ()  *)
+		(* 		else *)
+		(* 			() *)
 		(* i think this fixes my previous problem of accidentally *)
 		(* accumulating everything in the same list *)
 		val toUpdate = List.nth(newClusterCenters, index)
