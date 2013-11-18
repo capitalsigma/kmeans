@@ -1,3 +1,5 @@
+CM.make "./kmeans.cm";
+
 (* point.sml *)
 functor PointUnitTest (P : POINT) = 
 	struct 
@@ -20,22 +22,22 @@ functor PointUnitTest (P : POINT) =
 	val p7 = Point.add (p6, p2)
 	val _ = Point.printPoint p7
 
-	val s1 = Point.getSize p2
-	val s2 = Point.getSize (Point.incSize p2)
-	val _ = Point.printPoint (Point.incSize p2)
+	(* val s1 = Point.getSize p2 *)
+	(* val s2 = Point.getSize (Point.incSize p2) *)
+	(* val _ = Point.printPoint (Point.incSize p2) *)
 
-	val s3 = Point.resetSize (Point.incSize (Point.incSize p2))
+	(* val s3 = Point.resetSize (Point.incSize (Point.incSize p2)) *)
 
 	fun printAns (points) =	   
 	    app (print "------\n";Point.printPoint) points
 
-	fun testAddAndSize () =
-	    let
-		val p2' = Point.incSize (Point.incSize p2)
-	    in
-		printAns [Point.add (p2, p2), Point.add(p2, p2'),
-			  Point.add (p2', p2')]
-	    end
+	(* fun testAddAndSize () = *)
+	(*     let *)
+	(* 	val p2' = Point.incSize (Point.incSize p2) *)
+	(*     in *)
+	(* 	printAns [Point.add (p2, p2), Point.add(p2, p2'), *)
+	(* 		  Point.add (p2', p2')] *)
+	(*     end *)
 
 	(* fun testFeaturesRepr () =  *)
 	(*     print (featuresRepr p2) *)
@@ -90,7 +92,6 @@ val _ = app Point.printPoint normalizedPoints
 functor NormalUnitTest (N : NORMAL) =
 	struct
 	open N
-
 
 	val realList = [[1.0, 1.0], [2.0, 2.0], [3.0, 3.0], [4.0, 4.0]]
 	val onePoint = Point.pointFromList [1.5, 1.5]
