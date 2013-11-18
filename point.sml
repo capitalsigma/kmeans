@@ -26,19 +26,25 @@ functor ClusterCenterFunctor (P: POINT) =
 			size : int
 		}
 					 
-		fun ClusterCenter(point) =
+		fun ClusterCenter (nFeatures) : t=
 			{
-			  Point = point, 
+			  Point = P.Point nFeatures, 
 			  size = 0
 			}
 
-		fun getPoint({Point=p, size=n} : t) =
+		fun fromPoint (point : P.t) : t= 
+			{
+			  Point = point,
+			  size = 0
+			}
+
+		fun getPoint ({Point=p, size=n} : t) : P.t =
 			p
 
-		fun getSize({Point=p, size=n} : t) = 
+		fun getSize ({Point=p, size=n} : t)  = 
 			n
 
-		fun add({Point=p, size=n} : t, point : P.t) = 
+		fun add ({Point=p, size=n} : t, point : P.t) : t = 
 			{
 			  Point = P.add(p, point),
 			  size = n + 1
