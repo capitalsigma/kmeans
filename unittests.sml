@@ -44,51 +44,55 @@ functor PointUnitTest (P : POINT) =
 
 	end
 
+(* TOOD: unit tests for ClusterCenters *)
 
 
 structure TestPoint = PointUnitTest(Point)
 
-val _ = TestPoint.testAddAndSize ()
+(* val _ = TestPoint.testAddAndSize () *)
 (* val _ = TestPoint.testFeaturesRepr () *)
 
 
 
 (* unit tests -- commonUtil.sml*)
+functor CommonUtilTest() = struct
+		val [p1, p2] = map Point.pointFromList [[1.0, 1.0], [0.0, 0.0]]
+		val eucDist = CommonUtil.euclidDist(p1, p2)
+										   
+		val p3 = Point.pointFromList [2.0, 1.0]
+		(* TODO: is Vector.map implemented in terms of lists? *)
 
-val [p1, p2] = map Point.pointFromList [[1.0, 1.0], [0.0, 0.0]]
-val eucDist = CommonUtil.euclidDist(p1, p2)
+		(* FIXME FIXME FIXME *)
+		(* val clusterCenters = Vector.fromList (map ClusterCenter.fromPoint [p1, p2]) *)
+		(* val nearest = CommonUtil.findNearestPoint(p3, clusterCenters) *)
+		end
 
-val p3 = Point.pointFromList [2.0, 1.0]
-val nearest = CommonUtil.findNearestPoint(p3, [p1, p2])
+structure TestCommonUtil = CommonUtilTest()
 
 
 (* unit tests -- cluster.sml*)
-val listOfReals = [[1.0, 1.0, 1.0],
-		   [2.0, 2.0, 2.0],
-		   [1.0, 2.0, 3.0]]
+functor ClusterTest(C : CLUSTER) = struct
+		val listOfReals = [[1.0, 1.0, 1.0],
+						   [2.0, 2.0, 2.0],
+						   [1.0, 2.0, 3.0]]
 
-val extractedMoments = map Cluster.extractMoments listOfReals
-
-val pointList = map Point.pointFromList 
-		    [[1.0, 1.0, 1.0],
-		     [2.0, 2.0, 2.0],
-		     [1.0, 2.0, 3.0]]
+		val extractedMoments = map Cluster.extractMoments listOfReals
+								   
+		val pointList = map Point.pointFromList 
+							[[1.0, 1.0, 1.0],
+							 [2.0, 2.0, 2.0],
+							 [1.0, 2.0, 3.0]]
 		
-(* TODO: thse results are pretty weird (negative values for features) but *)
-(* they seem to be following the Java. Check? *)
-val normalizedPoints = Cluster.zscoreTransform pointList
-val _ = app Point.printPoint normalizedPoints
+		val normalizedPoints = Cluster.zscoreTransform (pointList, true)
+		val _ = app Point.printPoint normalizedPoints
+		end
 
+structure testCluster = ClusterTest(Cluster)
 
 
 
 
 (* unit tests  -- normal.sml *)
-
-(* TODO: the problem here is that you're not giving it a fresh set of  *)
-(* new cluster centers for each iteration of work() -- you started adding *)
-(* this in, but you need to finish it tomorow -- fixed*)
-
 functor NormalUnitTest (N : NORMAL) =
 	struct
 	open N
@@ -102,24 +106,25 @@ functor NormalUnitTest (N : NORMAL) =
 	fun printOut (points) = 
 	     app (print "-----\n";Point.printPoint) points
 	  
-	fun testAccumulate () = 
-	    let
-		fun test (i) = 
-		     printOut (accumulate (i, onePoint, blankDataSet))
-	    in
-		map test [0, 1, 2]
-	    end
+	(* fun testAccumulate () =  *)
+	(*     let *)
+	(* 	fun test (i) =  *)
+	(* 	     printOut (accumulate (i, onePoint, blankDataSet)) *)
+	(*     in *)
+	(* 	map test [0, 1, 2] *)
+	(*     end *)
 
-	fun testAcc2 () = 
-	    let
-		fun test (0, acc) = acc
-		  | test (i, acc) = test(i-1, accumulate(0, onePoint, acc))
-	    in
-		test (10, blankDataSet)
-	    end
-		
-	fun testWork () = 
-	    printOut (work (dataSet, [Point.Point 2]))
+	(* fun testAcc2 () =  *)
+	(*     let *)
+	(* 	fun test (0, acc) = acc *)
+	(* 	  | test (i, acc) = test(i-1, accumulate(0, onePoint, acc)) *)
+	(*     in *)
+	(* 	test (10, blankDataSet) *)
+	(*     end *)
+	
+	(* FIXME *)
+	(* fun testWork () =  *)
+	(*     printOut (work (dataSet, 1, #[ClusterCenter.ClusterCenter 2])) *)
 
 	    
 
@@ -127,10 +132,11 @@ functor NormalUnitTest (N : NORMAL) =
 	    printOut (Normal.execute(dataSet, 
 				     2,
 				     1.0,
-				     Random.rand(0, 0)))
+				     Random.rand(0, 0),
+					 true))
 		     
 	fun testExecSimple () = 
-	    printOut (Normal.execute(simpleDataSet, 1, 1.0, Random.rand(0, 0)))
+	    printOut (Normal.execute(simpleDataSet, 1, 1.0, Random.rand(0, 0), true))
 
 	end
 
@@ -139,11 +145,10 @@ functor NormalUnitTest (N : NORMAL) =
 structure TestNormal = NormalUnitTest(Normal);
 
 
-val _ = TestNormal.testAccumulate ()
-val _ = TestNormal.testWork ()
-(* NB: the cluster centers here get farther away each time,  -- fixed *)
+(* val _ = TestNormal.testAccumulate () *)
+(* val _ = TestNormal.testWork () *)
 val _ = TestNormal.testExecSimple ()
-val _ = TestNormal.testAcc2 ()
+(* val _ = TestNormal.testAcc2 () *)
 val _ = TestNormal.testExecute ()
 
 
@@ -179,10 +184,10 @@ functor ParserUnitTest (P : PARSER) =
 functor KMeansUnitTest(K : KMEANS) = struct
 	open K
 	fun testKMeansSmall () = 
-	    KMeans("color100", 1, 1, 1)
+	    KMeans("color100", 1, 1, 1, 1.0, true)
 
 	fun testKMeansLarge () = 
-	    KMeans("color100", 1, 10, 1)
+	    KMeans("color100", 1, 10, 1, 1.0, true)
 	end
 
 structure TestKMeans = KMeansUnitTest(KMeans)
@@ -190,4 +195,5 @@ val _ = TestKMeans.testKMeansSmall ()
 
 val _ = app Point.printPointList (TestKMeans.testKMeansLarge())
 
-(* val _ = main(["color100", "2", "100", "0"]) *)
+(* val _ = main(["color100", "2", "100", " *)
+(* TODO: what is this ?.ClusterCenter.t stuff? *)

@@ -6,6 +6,7 @@ Library
 	signature KMEANS
 
 	structure Cluster
+    signature CLUSTER
 
 	structure CommonUtil
 

@@ -1,4 +1,10 @@
-structure Cluster = struct
+signature CLUSTER = sig
+	val extractMoments : real list -> (real * real)
+	val zscoreTransform : Point.t list * bool -> Point.t list
+	val execute : Point.t list * int * int * real * bool -> Point.t list list
+end
+
+structure Cluster  :> CLUSTER = struct
 (* i dropped the other two parameters here because numObjects = length *)
 (* singleVariable and 2 is hardcoded as the number of moments to extract *)
 fun extractMoments (singleVariable) = 

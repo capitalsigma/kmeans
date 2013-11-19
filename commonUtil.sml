@@ -10,8 +10,9 @@ structure CommonUtil = struct
 fun euclidDist (point1, point2) = 
     let 
 	val [features1, features2] = map Point.pointToList [point1, point2]
+	fun pow2 x = x * x
 	fun distFunc (f1, f2) =
-	    Math.pow(f1 - f2, 2.0)
+		pow2 (f1 - f2)
 	fun sumDistSq (f1::f1s, f2::f2s, acc) = 
 	    sumDistSq (f1s, f2s, acc + distFunc(f1, f2))
 	  | sumDistSq ([], [], acc) = acc

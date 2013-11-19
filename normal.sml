@@ -73,7 +73,7 @@ val genericDebugFmt  =
 (*     end *)
 
 (* we: *)
-fun work (points, nClusterCenters, oldClusterCenters : ClusterCenter.t vector) = 
+fun work (points, nClusterCenters, oldClusterCenters) = 
 	let
 		val newClusterCenter = 
 			ClusterCenter.ClusterCenter (Point.getNumFeatures (hd points))
