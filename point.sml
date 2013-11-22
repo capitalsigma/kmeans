@@ -1,5 +1,6 @@
 signature POINT = sig
     type t
+
     exception NotEnoughFeatures
     exception InvalidFieldIndex
 				  
@@ -16,6 +17,8 @@ signature POINT = sig
 
 	val mapOnFeatures : (real -> real) * t -> t
     val getNumFeatures : t -> int
+
+	val compare : t * t -> order
 
 end
 
@@ -144,6 +147,22 @@ fun printPointList(ps) =
 		 print endStr)
 	end
 
+
+fun compare ({features=f1s} : t, {features=f2s} : t) = 
+	let
+		fun loop (f1::f1s, f2::f2s) = 
+			(case Real.compare(f1, f2) of
+				 EQUAL => loop(f1s, f2s)
+			   (* can this be simplified? *)
+			  | x : order => x)
+		  | loop ([], []) = EQUAL
+		  | loop (_, _) = raise NotEnoughFeatures
+	in
+		loop (f1s, f2s)
+	end
+
+		
+				  
 
 end
 

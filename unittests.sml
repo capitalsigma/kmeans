@@ -1,5 +1,9 @@
 CM.make "./kmeans.cm";
 
+fun assert(b : bool, msg : string) = 
+	if b then () else raise Fail(msg)
+
+											 
 (* point.sml *)
 functor PointUnitTest (P : POINT) = 
 	struct 
