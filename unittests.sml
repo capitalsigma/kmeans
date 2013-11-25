@@ -1,62 +1,144 @@
 CM.make "./kmeans.cm";
 
-fun assert(b : bool, msg : string) = 
-	if b then () else raise Fail(msg)
+signature TESTING = sig
+	val assert : bool * string -> unit
+	val assertEq : ('a * 'a -> order) * 'a * 'a * string -> unit
 
-											 
+end
+
+structure Testing :> TESTING = struct
+
+fun pass () =
+	print "pass\n"
+
+
+fun assert (b : bool, msg : string) = 
+	if b then pass () else raise Fail(msg)					
+
+fun assertEq (eqFunc : ('a * 'a -> order), x : 'a, y : 'a, msg) = 
+	if  eqFunc (x, y) = EQUAL then 
+		pass ()
+	else
+		raise Fail(msg)
+end
+
+
+funsig TYPETESTING (structure T) = sig
+	(* is this a bad place to have tight coupling? *)
+	open Testing
+	val assertTEq : T.t * T.t * string -> unit
+end
+
+
+functor TypeTesting (structure TYPE) :> TYPETESTING = struct
+	open Testing
+
+	fun assertTEq (obj1, obj2, msg) = 
+		assertEq (TYPE.compare, obj1, obj2, msg)
+					  
+end
+
+						 
 (* point.sml *)
-functor PointUnitTest (P : POINT) = 
-	struct 
+functor PointUnitTest (structure P : POINT
+					   structure T : TESTING) = struct 
 	open P
+	open T
+
+	val assertPointEq  = 
+		fn (p1 : t, p2 : t, msg : string) => 
+		   assertEq (compare, p1, p2, msg)
+					 
 
 	(* old tests left in this format *)
-	val p = Point.Point(5)
-	val _ = Point.printPoint(p)
-	val p2 = Point.pointFromList([1.0, 2.0, 3.0, 4.0])
-	val _ = Point.printPoint(p2)
-	val p4 = Point.pointToList(p2)
+	fun testPointConstructor nFeatures = 
+		assertEq (compare, 
+				  (Point nFeatures), 
+				  pointFromList (List.tabulate (nFeatures, fn x => 0.0)),
+				 "testPointConstructorFail")
+				 
+	fun testPointFromList () =
+		let 
+			val p = pointFromList [1.0, 2.0, 3.0]
+		in 
+			assertPointEq (p,
+						   pointFromList (pointToList p),
+						   "testPointFromList fail")
+		end
+	
 
-	val listToZip = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]]
-	val p3 = Point.featureListToPoints listToZip
-	val _ = app Point.printPoint p3
+	fun testFeatureZip () = 
+		let 
+			val p = featureListToPoints 
+						[[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]]
+		in
+		assertPointEq (hd p,
+					   hd (featureListToPoints (pointsToFeatureList p)),
+					   "testFeatureZip fail")
+		end
+					   
+	fun testFeatureAdd () =
+		let 
+			val ident = pointFromList [0.0, 0.0, 0.0]
+			val p = pointFromList [1.0, 1.0, 1.0]
+			val p' = pointFromList [2.0, 2.0, 2.0]
+		in
+			assertPointEq (p',
+						   add (add (p, p), ident),
+						   "testFeatureAdd fail")
+		end
 
-	val featureList = Point.pointsToFeatureList p3
 
-	val p6 = Point.pointFromList [6.0, 7.0, 8.0, 9.0]
-	val p7 = Point.add (p6, p2)
-	val _ = Point.printPoint p7
+	fun testMapOnFeatures () = 
+		let 
+			val p = pointFromList [1.0, 1.0, 1.0]
+			val p' = pointFromList [5.0, 5.0, 5.0]
+		in 
+			assertPointEq (p',
+						   mapOnFeatures ((fn x => x * 5.0), p),
+						   "testMapOnFeatures fail")
+		end
 
-	(* val s1 = Point.getSize p2 *)
-	(* val s2 = Point.getSize (Point.incSize p2) *)
-	(* val _ = Point.printPoint (Point.incSize p2) *)
 
-	(* val s3 = Point.resetSize (Point.incSize (Point.incSize p2)) *)
-
-	fun printAns (points) =	   
-	    app (print "------\n";Point.printPoint) points
-
-	(* fun testAddAndSize () = *)
-	(*     let *)
-	(* 	val p2' = Point.incSize (Point.incSize p2) *)
-	(*     in *)
-	(* 	printAns [Point.add (p2, p2), Point.add(p2, p2'), *)
-	(* 		  Point.add (p2', p2')] *)
-	(*     end *)
-
-	(* fun testFeaturesRepr () =  *)
-	(*     print (featuresRepr p2) *)
-
+	fun testGetNumFeatures (nFeatures) =
+		assert ((getNumFeatures (Point nFeatures) = nFeatures),
+				"testGetNumFeatures fail")
+						
 	end
+
 
 (* TOOD: unit tests for ClusterCenters *)
 
+(* TODO: probably an error should get raised for 0-feature points *)
+structure TestPoint = PointUnitTest (structure P = Point 
+									 structure T = Testing)
 
-structure TestPoint = PointUnitTest(Point)
+val _ = (
+	(app (fn x => TestPoint.testPointConstructor x) [1, 2, 3, 4, 5]);
+	TestPoint.testPointFromList (); 
+	TestPoint.testFeatureZip ();
+	TestPoint.testFeatureAdd ();
+	TestPoint.testMapOnFeatures ();
+	(app (fn x => TestPoint.testGetNumFeatures x) [1, 2, 3, 4, 5])
+)	 
 
-(* val _ = TestPoint.testAddAndSize () *)
-(* val _ = TestPoint.testFeaturesRepr () *)
 
+(* point.sml, ClusterCenters *)
+functor TestClusterCenters (structure C : CLUSTERCENTER
+							structure T : TYPETESTING) = struct
+		open C
+		open T
 
+		fun testClusterCenterConstructur (nFeatures) = 
+			let 
+				val c = ClusterCenter (nFeatures)
+				val c' = ClusterCenter.fromPoint (Point nFeatures)
+			in 
+				assert
+
+end 
+
+					 
 
 (* unit tests -- commonUtil.sml*)
 functor CommonUtilTest() = struct

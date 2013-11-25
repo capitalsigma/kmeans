@@ -7,7 +7,8 @@ signature POINT = sig
     val repr : t -> string
     val printPoint : t -> unit
     val printPointList : t list -> unit
-    val Point : int -> t
+
+	val Point : int -> t
     val pointFromList : real list -> t
     val pointToList : t -> real list
     val featureListToPoints : real list list -> t list
@@ -22,14 +23,32 @@ signature POINT = sig
 
 end
 
-functor ClusterCenterFunctor (P: POINT) =
+funsig CLUSTERCENTER (P : POINT) = sig
+	type t
+
+	val ClusterCenter : int -> t
+	val fromPoint : P.t -> t
+
+	val getPoint : t -> P.t
+	val getSize : t -> int
+
+	val add : t * t -> t
+	val resetSize : t -> t
+
+	val compareFeatures : t * t -> order
+	val compareSize : t * t -> order
+end								   
+
+
+
+functor ClusterCenterFunctor (P : POINT) :> CLUSTERCENTER =
 		struct
 		type t = {
 			Point : P.t,
 			size : int
 		}
 					 
-		fun ClusterCenter (nFeatures) : t=
+		fun ClusterCenter (nFeatures) : t =
 			{
 			  Point = P.Point nFeatures, 
 			  size = 0
@@ -53,12 +72,20 @@ functor ClusterCenterFunctor (P: POINT) =
 			  size = n + 1
 			}
 				
-		(* TODO: does this recalculate Int.toReal every time? *)
+		(* TODO: does this recalculate Real.fromInt every time? *)
 		fun resetSize({Point=p, size=n})= 
 			{
 			  Point = P.mapOnFeatures(fn x => x / (Real.fromInt n), p),
 			  size = 0
 			}
+
+
+		(* TODO: is this SML-ish style? I've been following the Python... *)
+		fun compareFeatures({Point=p1,...} : t , {Point=p2,...} : t)  =
+			P.compare(p1, p2)
+
+		fun compareSize({size=n1,...} : t, {size=n2,...} : t) = 
+			Int.compare(n1, n2)
 
 		end
 			
