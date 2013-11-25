@@ -46,7 +46,7 @@ end
 (* funsig CLUSTER_CENTER_FUNSIG (P : POINT) =  *)
 (* CLUSTER_CENTER_SIG where type t' = P.t *)
 
-
+(* TODO: make this an opaque signature later on *)
 
 functor ClusterCenterFunctor (P : POINT) : CLUSTER_CENTER = 
 		struct

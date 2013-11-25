@@ -16,6 +16,9 @@ Library
 	structure Point
 	signature POINT
 
+    structure ClusterCenter
+    signature CLUSTER_CENTER
+
     (* from http://www.cs.nyu.edu/leunga/sml-software.html *)
     signature STRING_PRINTF
     structure StringPrintf

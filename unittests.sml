@@ -29,17 +29,20 @@ signature COMPARABLE = sig
 end
 
 signature TYPE_TESTING = sig
-	structure Comp : COMPARABLE
+	(* structure Comp : COMPARABLE *)
+	type t
+
 	include TESTING
 
-	val assertTEq : Comp.t * Comp.t * string -> unit
+	val assertTEq : t * t * string -> unit
 end
 
 
 
-functor TypeTesting (structure Comp : COMPARABLE) :> TYPE_TESTING  = struct
+functor TypeTesting (structure Comp : COMPARABLE) :> 
+		TYPE_TESTING where type t = Comp.t = struct
 	open Testing
-	structure Comp = Comp
+	type t = Comp.t
 
 	fun assertTEq (obj1, obj2, msg) = 
 		assertEq (Comp.compare, obj1, obj2, msg)
@@ -122,19 +125,20 @@ structure TestPoint = PointUnitTest (structure P = Point
 									 structure T = Testing)
 
 val _ = (
-	(app (fn x => TestPoint.testPointConstructor x) [1, 2, 3, 4, 5]);
+	(app TestPoint.testPointConstructor [1, 2, 3, 4, 5]);
 	TestPoint.testPointFromList (); 
 	TestPoint.testFeatureZip ();
 	TestPoint.testFeatureAdd ();
 	TestPoint.testMapOnFeatures ();
-	(app (fn x => TestPoint.testGetNumFeatures x) [1, 2, 3, 4, 5])
+	(app TestPoint.testGetNumFeatures [1, 2, 3, 4, 5])
 )	 
 
 
 (* point.sml, ClusterCenters *)
 functor ClusterCenterUnitTest (structure C : CLUSTER_CENTER
 							   structure T : TYPE_TESTING
-							  sharing type C.t = T.Comp.t) = struct
+							  sharing type C.t = T.t) = struct
+		structure P = C.P
 		open C
 
 		(* how do you do this? *)
@@ -174,7 +178,7 @@ functor ClusterCenterUnitTest (structure C : CLUSTER_CENTER
 		fun testGetSize (n) = 
 			let
 				fun loop (0, c) = c
-				  | loop (index, c) = add(c, (loop (index - 1, c)))
+				  | loop (index, c) = add(c, (getPoint (loop (index - 1, c))))
 			in
 				T.assert (n = (getSize (loop(n, identCluster))),
 						"testGetSize fail")
@@ -191,7 +195,7 @@ functor ClusterCenterUnitTest (structure C : CLUSTER_CENTER
 end 
 
 
-structure TestingClusterCenters = TypeTesting (ClusterCenter)
+structure TestingClusterCenters = TypeTesting (structure Comp = ClusterCenter)
 
 structure TestClusterCenters = 
 ClusterCenterUnitTest 
@@ -203,10 +207,10 @@ ClusterCenterUnitTest
 val _ = let
 	open TestClusterCenters 
 in
-	(app (fn x => testClusterCenterConstructor x), [1.0, 2.0, 3.0, 4.0]);
+	(app testClusterCenterConstructor [1, 2, 3, 4]);
 	testGetPoint ();
 	testAdd ();
-	testGetSize ();
+	(app testGetSize [1, 2, 3, 4, 5, 6]);
 	testResetSize ()
 end
 
