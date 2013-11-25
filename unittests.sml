@@ -23,18 +23,23 @@ fun assertEq (eqFunc : ('a * 'a -> order), x : 'a, y : 'a, msg) =
 end
 
 
-funsig TYPETESTING (structure T) = sig
-	(* is this a bad place to have tight coupling? *)
-	open Testing
-	val assertTEq : T.t * T.t * string -> unit
+signature COMPARABLE = sig
+	type t
+	val compare : t * t -> order
+end
+
+signature TYPE_TESTING = sig
+	structure C : COMPARABLE
+	val assertTEq : C.t * C.t * string -> unit
 end
 
 
-functor TypeTesting (structure TYPE) :> TYPETESTING = struct
+
+functor TypeTesting (structure C : COMPARABLE) = struct
 	open Testing
 
 	fun assertTEq (obj1, obj2, msg) = 
-		assertEq (TYPE.compare, obj1, obj2, msg)
+		assertEq (C.compare, obj1, obj2, msg)
 					  
 end
 
@@ -124,19 +129,81 @@ val _ = (
 
 
 (* point.sml, ClusterCenters *)
-functor TestClusterCenters (structure C : CLUSTERCENTER
-							structure T : TYPETESTING) = struct
+functor ClusterCenterUnitTest (structure C : CLUSTER_CENTER
+							   structure T : TYPE_TESTING) = struct
 		open C
 		open T
 
-		fun testClusterCenterConstructur (nFeatures) = 
+		val identPoint = Point.Point 3
+		val identCluster = fromPoint identPoint
+
+		val pointOne = Point.pointFromList [1.0, 1.0, 1.0]
+		val clusterOne = fromPoint onePoint
+
+		val pointTwo = Point.fromList [2.0, 2.0, 2.0]
+		val clusterTwo = fromPoint pointTwo
+
+		fun testClusterCenterConstructor (nFeatures) = 
 			let 
 				val c = ClusterCenter (nFeatures)
-				val c' = ClusterCenter.fromPoint (Point nFeatures)
+				val c' = ClusterCenter.fromPoint (Point.Point nFeatures)
 			in 
-				assert
+				assertTEq (c, c', "testClusterCenterConstructor fail")
+			end
 
+		fun testGetPoint () = 
+			let 
+				val test = 
+				 fn (c, p) => assertEq (P.compare, c, p, "testGetPoint fail")
+			in
+				app test [(identCluster, identPoint),
+						  (clusterOne, pointOne),
+						  (clusterTwo, pointTwo)]
+			end
+
+		fun testAdd () = 
+			assertTEq ((add (clusterOne, (add (clusterOne, identCluster))),
+						clusterTwo,
+						"testAdd fail"))
+
+		fun testGetSize (n) = 
+			let
+				fun loop (0, c) = c
+				  | loop (index, c) = add(c, loop(index - 1, c))
+			in
+				assert (n = (getSize loop(n, identCluster)),
+						"testGetSize fail")
+			end
+
+		fun testResetSize () = 
+			let
+				val c = resetSize (add (clusterOne, clusterOne))
+			in
+				(assertTEq (c, clusterOne, "testResetSize features fail");
+				 assert (0 = (getSize c), "testResetSize size fail"))
+			end
+	
 end 
+
+
+structure TestingClusterCenters = TypeTesting (ClusterCenter)
+
+structure TestClusterCenters = 
+ClusterCenterUnitTest 
+	(structure C = ClusterCenter
+	 structure T = TestingClusterCenters)
+
+
+
+val _ = let
+	open TestClusterCenters 
+in
+	(app (fn x => testClusterCenterConstructor x), [1.0, 2.0, 3.0, 4.0]);
+	testGetPoint ();
+	testAdd ();
+	testGetSize ();
+	testResetSize ()
+end
 
 					 
 

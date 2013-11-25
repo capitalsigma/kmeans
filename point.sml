@@ -23,7 +23,11 @@ signature POINT = sig
 
 end
 
-funsig CLUSTERCENTER (P : POINT) = sig
+(* not sure how to do this? *)
+(* ASK ABOUT THIS *)
+signature CLUSTER_CENTER = sig
+	structure P : POINT
+
 	type t
 
 	val ClusterCenter : int -> t
@@ -32,17 +36,21 @@ funsig CLUSTERCENTER (P : POINT) = sig
 	val getPoint : t -> P.t
 	val getSize : t -> int
 
-	val add : t * t -> t
+	val add : t * P.t -> t
 	val resetSize : t -> t
 
-	val compareFeatures : t * t -> order
+	val compare : t * t -> order
 	val compareSize : t * t -> order
 end								   
 
+(* funsig CLUSTER_CENTER_FUNSIG (P : POINT) =  *)
+(* CLUSTER_CENTER_SIG where type t' = P.t *)
 
 
-functor ClusterCenterFunctor (P : POINT) :> CLUSTERCENTER =
+
+functor ClusterCenterFunctor (P : POINT) = 
 		struct
+
 		type t = {
 			Point : P.t,
 			size : int
@@ -81,7 +89,7 @@ functor ClusterCenterFunctor (P : POINT) :> CLUSTERCENTER =
 
 
 		(* TODO: is this SML-ish style? I've been following the Python... *)
-		fun compareFeatures({Point=p1,...} : t , {Point=p2,...} : t)  =
+		fun compare({Point=p1,...} : t , {Point=p2,...} : t)  =
 			P.compare(p1, p2)
 
 		fun compareSize({size=n1,...} : t, {size=n2,...} : t) = 
@@ -192,6 +200,5 @@ fun compare ({features=f1s} : t, {features=f2s} : t) =
 				  
 
 end
-
 
 structure ClusterCenter = ClusterCenterFunctor(Point)
