@@ -84,7 +84,7 @@ fun work (points, nClusterCenters, oldClusterCenters) =
 		fun nearestOldCenter (p) = 
 			CommonUtil.findNearestPoint (p, oldCenterPoints)
 		fun addToCenter (centers, index, point) =
-			ClusterCenter.add ((Vector.sub (centers, index)), point)
+			ClusterCenter.add (point, (Vector.sub (centers, index)))
 		fun accumulate (point, clusterCenters) = 
 			let
 				val index = nearestOldCenter point

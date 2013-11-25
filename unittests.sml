@@ -171,22 +171,28 @@ functor ClusterCenterUnitTest (structure C : CLUSTER_CENTER
 			end
 
 		fun testAdd () = 
-			T.assertTEq ((add (clusterOne, (getPoint (add (clusterOne, identPoint)))),
-						clusterTwo,
-						"testAdd fail"))
-
-		fun testGetSize (n) = 
-			let
-				fun loop (0, c) = c
-				  | loop (index, c) = add(c, (getPoint (loop (index - 1, c))))
+			let 
+				val c = (C.add (identPoint, (C.add (pointOne, clusterOne))))
 			in
-				T.assert (n = (getSize (loop(n, identCluster))),
+				T.assertTEq (c,	clusterTwo,
+						"testAdd fail")
+			end
+
+
+		fun testGetSize n = 
+			let
+				fun accum n = 
+					foldr add identCluster (List.tabulate (n, fn x => pointOne))
+			in
+				T.assert (n = (getSize (accum n)),
 						"testGetSize fail")
 			end
 
 		fun testResetSize () = 
 			let
-				val c = resetSize (add (clusterOne, pointOne))
+				val c = resetSize (add (pointOne, clusterOne))
+				val _ = P.printPoint (getPoint c)
+				val _ = print (Int.toString(getSize c))
 			in
 				(T.assertTEq (c, clusterOne, "testResetSize features fail");
 				 T.assert (0 = (getSize c), "testResetSize size fail"))

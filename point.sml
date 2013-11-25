@@ -36,7 +36,7 @@ signature CLUSTER_CENTER = sig
 	val getPoint : t -> P.t
 	val getSize : t -> int
 
-	val add : t * P.t -> t
+	val add : P.t * t  -> t
 	val resetSize : t -> t
 
 	val compare : t * t -> order
@@ -75,7 +75,7 @@ functor ClusterCenterFunctor (P : POINT) : CLUSTER_CENTER =
 		fun getSize ({Point=p, size=n} : t)  = 
 			n
 
-		fun add ({Point=p, size=n} : t, point : P.t) : t = 
+		fun add (point : P.t, {Point=p, size=n} : t) : t = 
 			{
 			  Point = P.add(p, point),
 			  size = n + 1
