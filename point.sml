@@ -48,8 +48,9 @@ end
 
 
 
-functor ClusterCenterFunctor (P : POINT) = 
+functor ClusterCenterFunctor (P : POINT) : CLUSTER_CENTER = 
 		struct
+		structure P = P
 
 		type t = {
 			Point : P.t,

@@ -29,17 +29,20 @@ signature COMPARABLE = sig
 end
 
 signature TYPE_TESTING = sig
-	structure C : COMPARABLE
-	val assertTEq : C.t * C.t * string -> unit
+	structure Comp : COMPARABLE
+	include TESTING
+
+	val assertTEq : Comp.t * Comp.t * string -> unit
 end
 
 
 
-functor TypeTesting (structure C : COMPARABLE) = struct
+functor TypeTesting (structure Comp : COMPARABLE) :> TYPE_TESTING  = struct
 	open Testing
+	structure Comp = Comp
 
 	fun assertTEq (obj1, obj2, msg) = 
-		assertEq (C.compare, obj1, obj2, msg)
+		assertEq (Comp.compare, obj1, obj2, msg)
 					  
 end
 
@@ -130,31 +133,33 @@ val _ = (
 
 (* point.sml, ClusterCenters *)
 functor ClusterCenterUnitTest (structure C : CLUSTER_CENTER
-							   structure T : TYPE_TESTING) = struct
+							   structure T : TYPE_TESTING
+							  sharing type C.t = T.Comp.t) = struct
 		open C
-		open T
 
-		val identPoint = Point.Point 3
+		(* how do you do this? *)
+		val identPoint = P.Point 3
 		val identCluster = fromPoint identPoint
 
-		val pointOne = Point.pointFromList [1.0, 1.0, 1.0]
-		val clusterOne = fromPoint onePoint
+		val pointOne = P.pointFromList [1.0, 1.0, 1.0]
+		val clusterOne = fromPoint pointOne
 
-		val pointTwo = Point.fromList [2.0, 2.0, 2.0]
+		val pointTwo = P.pointFromList [2.0, 2.0, 2.0]
 		val clusterTwo = fromPoint pointTwo
 
 		fun testClusterCenterConstructor (nFeatures) = 
 			let 
 				val c = ClusterCenter (nFeatures)
-				val c' = ClusterCenter.fromPoint (Point.Point nFeatures)
+				val c' = fromPoint (P.Point nFeatures)
 			in 
-				assertTEq (c, c', "testClusterCenterConstructor fail")
+				T.assertTEq (c, c', "testClusterCenterConstructor fail")
 			end
 
 		fun testGetPoint () = 
 			let 
 				val test = 
-				 fn (c, p) => assertEq (P.compare, c, p, "testGetPoint fail")
+				 fn (c : t, p : P.t) => 
+					T.assertEq (P.compare, (getPoint c), p, "testGetPoint fail")
 			in
 				app test [(identCluster, identPoint),
 						  (clusterOne, pointOne),
@@ -162,25 +167,25 @@ functor ClusterCenterUnitTest (structure C : CLUSTER_CENTER
 			end
 
 		fun testAdd () = 
-			assertTEq ((add (clusterOne, (add (clusterOne, identCluster))),
+			T.assertTEq ((add (clusterOne, (getPoint (add (clusterOne, identPoint)))),
 						clusterTwo,
 						"testAdd fail"))
 
 		fun testGetSize (n) = 
 			let
 				fun loop (0, c) = c
-				  | loop (index, c) = add(c, loop(index - 1, c))
+				  | loop (index, c) = add(c, (loop (index - 1, c)))
 			in
-				assert (n = (getSize loop(n, identCluster)),
+				T.assert (n = (getSize (loop(n, identCluster))),
 						"testGetSize fail")
 			end
 
 		fun testResetSize () = 
 			let
-				val c = resetSize (add (clusterOne, clusterOne))
+				val c = resetSize (add (clusterOne, pointOne))
 			in
-				(assertTEq (c, clusterOne, "testResetSize features fail");
-				 assert (0 = (getSize c), "testResetSize size fail"))
+				(T.assertTEq (c, clusterOne, "testResetSize features fail");
+				 T.assert (0 = (getSize c), "testResetSize size fail"))
 			end
 	
 end 
