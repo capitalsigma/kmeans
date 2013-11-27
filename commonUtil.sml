@@ -1,9 +1,9 @@
-signature COMMONUTIL = sig
+signature COMMON_UTIL = sig
 	val euclidDist : Point.t * Point.t -> real
 	val findNearestPoint : Point.t * ClusterCenter.t vector -> int
 end
 
-structure CommonUtil = struct
+structure CommonUtil :> COMMON_UTIL = struct
 
 (* the Java defines this as the sum from i = 0 to numFeatures of*)
 (* dist = (point.getFeature[i] - point.getFeature[i]) ^ 2 *)
@@ -23,7 +23,7 @@ fun euclidDist (point1, point2) =
     end
 
 
-fun findNearestPoint(point, clusters) = 
+fun findNearestPoint (point, clusters : ClusterCenter.t vector) = 
     let 
 	val limit = 0.99999 	(* ??? from the Java *)
 	val maxDist = Real.posInf
@@ -31,7 +31,8 @@ fun findNearestPoint(point, clusters) =
 	fun minDistance (_, indexOfNearest, 0) = indexOfNearest
 	  | minDistance (maxDist, indexOfNearest, i) =
 	    let 
-			val newDist = euclidDist(point, Vector.sub (clusters, i))
+			val newDist = euclidDist(point, 
+									 ClusterCenter.getPoint (Vector.sub (clusters, i)))
 	    in
 			if (newDist / maxDist) < limit then
 				minDistance(newDist, i, i + 1)

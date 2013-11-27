@@ -8,16 +8,16 @@ end
 
 structure Testing :> TESTING = struct
 
-fun pass () =
-	print "pass\n"
+fun pass (msg) =
+	print (msg ^ " pass\n")
 
 
 fun assert (b : bool, msg : string) = 
-	if b then pass () else raise Fail(msg)					
+	if b then pass (msg) else raise Fail(msg)					
 
 fun assertEq (eqFunc : ('a * 'a -> order), x : 'a, y : 'a, msg) = 
 	if  eqFunc (x, y) = EQUAL then 
-		pass ()
+		pass (msg)
 	else
 		raise Fail(msg)
 end
@@ -66,7 +66,7 @@ functor PointUnitTest (structure P : POINT
 		assertEq (compare, 
 				  (Point nFeatures), 
 				  pointFromList (List.tabulate (nFeatures, fn x => 0.0)),
-				 "testPointConstructorFail")
+				 "testPointConstructor")
 				 
 	fun testPointFromList () =
 		let 
@@ -74,7 +74,7 @@ functor PointUnitTest (structure P : POINT
 		in 
 			assertPointEq (p,
 						   pointFromList (pointToList p),
-						   "testPointFromList fail")
+						   "testPointFromList ")
 		end
 	
 
@@ -85,7 +85,7 @@ functor PointUnitTest (structure P : POINT
 		in
 		assertPointEq (hd p,
 					   hd (featureListToPoints (pointsToFeatureList p)),
-					   "testFeatureZip fail")
+					   "testFeatureZip ")
 		end
 					   
 	fun testFeatureAdd () =
@@ -96,24 +96,26 @@ functor PointUnitTest (structure P : POINT
 		in
 			assertPointEq (p',
 						   add (add (p, p), ident),
-						   "testFeatureAdd fail")
+						   "testFeatureAdd ")
 		end
 
 
-	fun testMapOnFeatures () = 
+	fun testMapOnFeatures (n : int) = 
 		let 
-			val p = pointFromList [1.0, 1.0, 1.0]
-			val p' = pointFromList [5.0, 5.0, 5.0]
+			val mul = fn (x : real) => x * Real.fromInt(n)
+			val l = [1.0, 1.0, 1.0]
+			val p = pointFromList l
+			val p' = pointFromList (map mul l)
 		in 
 			assertPointEq (p',
-						   mapOnFeatures ((fn x => x * 5.0), p),
-						   "testMapOnFeatures fail")
+						   mapOnFeatures (mul, p),
+						   "testMapOnFeatures ")
 		end
 
 
 	fun testGetNumFeatures (nFeatures) =
 		assert ((getNumFeatures (Point nFeatures) = nFeatures),
-				"testGetNumFeatures fail")
+				"testGetNumFeatures ")
 						
 	end
 
@@ -124,14 +126,19 @@ functor PointUnitTest (structure P : POINT
 structure TestPoint = PointUnitTest (structure P = Point 
 									 structure T = Testing)
 
-val _ = (
-	(app TestPoint.testPointConstructor [1, 2, 3, 4, 5]);
-	TestPoint.testPointFromList (); 
-	TestPoint.testFeatureZip ();
-	TestPoint.testFeatureAdd ();
-	TestPoint.testMapOnFeatures ();
-	(app TestPoint.testGetNumFeatures [1, 2, 3, 4, 5])
-)	 
+val _ = let 
+	val curr_app = fn x => app x [1, 2, 3, 4, 5]
+in
+	(
+	  (curr_app TestPoint.testPointConstructor);
+	  TestPoint.testPointFromList (); 
+	  TestPoint.testFeatureZip ();
+	  TestPoint.testFeatureAdd ();
+	  (curr_app TestPoint.testMapOnFeatures);
+	  (curr_app TestPoint.testGetNumFeatures);
+	  (print "POINT PASSED\n")
+	)
+end
 
 
 (* point.sml, ClusterCenters *)
@@ -156,14 +163,14 @@ functor ClusterCenterUnitTest (structure C : CLUSTER_CENTER
 				val c = ClusterCenter (nFeatures)
 				val c' = fromPoint (P.Point nFeatures)
 			in 
-				T.assertTEq (c, c', "testClusterCenterConstructor fail")
+				T.assertTEq (c, c', "testClusterCenterConstructor ")
 			end
 
 		fun testGetPoint () = 
 			let 
 				val test = 
 				 fn (c : t, p : P.t) => 
-					T.assertEq (P.compare, (getPoint c), p, "testGetPoint fail")
+					T.assertEq (P.compare, (getPoint c), p, "testGetPoint ")
 			in
 				app test [(identCluster, identPoint),
 						  (clusterOne, pointOne),
@@ -175,7 +182,7 @@ functor ClusterCenterUnitTest (structure C : CLUSTER_CENTER
 				val c = (C.add (identPoint, (C.add (pointOne, clusterOne))))
 			in
 				T.assertTEq (c,	clusterTwo,
-						"testAdd fail")
+						"testAdd ")
 			end
 
 
@@ -185,17 +192,15 @@ functor ClusterCenterUnitTest (structure C : CLUSTER_CENTER
 					foldr add identCluster (List.tabulate (n, fn x => pointOne))
 			in
 				T.assert (n = (getSize (accum n)),
-						"testGetSize fail")
+						"testGetSize ")
 			end
 
-		fun testResetSize () = 
+		fun testResetSize (n) = 
 			let
-				val c = resetSize (add (pointOne, clusterOne))
-				val _ = P.printPoint (getPoint c)
-				val _ = print (Int.toString(getSize c))
+				val c = resetSize (foldr add identCluster (List.tabulate (n, fn x=>pointOne)))
 			in
-				(T.assertTEq (c, clusterOne, "testResetSize features fail");
-				 T.assert (0 = (getSize c), "testResetSize size fail"))
+				(T.assertTEq (c, clusterOne, "testResetSize features ");
+				 T.assert (0 = (getSize c), "testResetSize size "))
 			end
 	
 end 
@@ -212,22 +217,26 @@ ClusterCenterUnitTest
 
 val _ = let
 	open TestClusterCenters 
+	val curr_app = fn x => app x [1, 2, 3, 4, 5]
 in
-	(app testClusterCenterConstructor [1, 2, 3, 4]);
-	testGetPoint ();
-	testAdd ();
-	(app testGetSize [1, 2, 3, 4, 5, 6]);
-	testResetSize ()
+	(
+	  (curr_app testClusterCenterConstructor);
+	  testGetPoint ();
+	  testAdd ();
+	  (curr_app testGetSize);
+	  (curr_app testResetSize);
+	  (print "CLUSTER CENTERS PASSED\n")
+	)
 end
 
 					 
 
 (* unit tests -- commonUtil.sml*)
-functor CommonUtilTest() = struct
-		val [p1, p2] = map Point.pointFromList [[1.0, 1.0], [0.0, 0.0]]
-		val eucDist = CommonUtil.euclidDist(p1, p2)
+functor CommonUtilTest (structure C : COMMON_UTIL) = struct
+		(* val [p1, p2] = map Point.pointFromList [[1.0, 1.0], [0.0, 0.0]] *)
+		(* val eucDist = CommonUtil.euclidDist(p1, p2) *)
 										   
-		val p3 = Point.pointFromList [2.0, 1.0]
+		(* val p3 = Point.pointFromList [2.0, 1.0] *)
 		(* TODO: is Vector.map implemented in terms of lists? *)
 
 		(* FIXME FIXME FIXME *)
@@ -235,7 +244,13 @@ functor CommonUtilTest() = struct
 		(* val nearest = CommonUtil.findNearestPoint(p3, clusterCenters) *)
 		end
 
-structure TestCommonUtil = CommonUtilTest()
+structure TestCommonUtil = CommonUtilTest(structure C = CommonUtil)
+
+val _ = let 
+	open TestCommonUtil 		(* TODO: can this be done on one line? *)
+in
+	()
+end
 
 
 (* unit tests -- cluster.sml*)

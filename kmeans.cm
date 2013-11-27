@@ -9,6 +9,7 @@ Library
     signature CLUSTER
 
 	structure CommonUtil
+    signature COMMON_UTIL
 
 	structure Normal
 	signature NORMAL

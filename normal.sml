@@ -73,16 +73,16 @@ val genericDebugFmt  =
 (*     end *)
 
 (* we: *)
-fun work (points, nClusterCenters, oldClusterCenters) = 
+fun work (points, nClusterCenters, oldClusterCenters : ClusterCenter.t vector) = 
 	let
 		val newClusterCenter = 
 			ClusterCenter.ClusterCenter (Point.getNumFeatures (hd points))
-		val oldCenterPoints = 
-			Vector.map ClusterCenter.getPoint oldClusterCenters
+		(* val oldCenterPoints =  *)
+		(* 	Vector.map ClusterCenter.getPoint oldClusterCenters *)
 		val vecForAccum = Vector.tabulate (nClusterCenters, 
 										   (fn x => newClusterCenter))
 		fun nearestOldCenter (p) = 
-			CommonUtil.findNearestPoint (p, oldCenterPoints)
+			CommonUtil.findNearestPoint (p, oldClusterCenters)
 		fun addToCenter (centers, index, point) =
 			ClusterCenter.add (point, (Vector.sub (centers, index)))
 		fun accumulate (point, clusterCenters) = 
