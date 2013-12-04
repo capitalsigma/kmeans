@@ -120,8 +120,6 @@ functor PointUnitTest (structure P : POINT
 	end
 
 
-(* TOOD: unit tests for ClusterCenters *)
-
 (* TODO: probably an error should get raised for 0-feature points *)
 structure TestPoint = PointUnitTest (structure P = Point 
 									 structure T = Testing)
@@ -148,7 +146,6 @@ functor ClusterCenterUnitTest (structure C : CLUSTER_CENTER
 		structure P = C.P
 		open C
 
-		(* how do you do this? *)
 		val identPoint = P.Point 3
 		val identCluster = fromPoint identPoint
 
@@ -232,96 +229,128 @@ end
 					 
 
 (* unit tests -- commonUtil.sml*)
-functor CommonUtilTest (structure C : COMMON_UTIL) = struct
-		(* val [p1, p2] = map Point.pointFromList [[1.0, 1.0], [0.0, 0.0]] *)
-		(* val eucDist = CommonUtil.euclidDist(p1, p2) *)
-										   
-		(* val p3 = Point.pointFromList [2.0, 1.0] *)
-		(* TODO: is Vector.map implemented in terms of lists? *)
+functor CommonUtilTest (structure COM : COMMON_UTIL
+						structure T: TESTING) = struct				
+		open COM
 
-		(* FIXME FIXME FIXME *)
-		(* val clusterCenters = Vector.fromList (map ClusterCenter.fromPoint [p1, p2]) *)
-		(* val nearest = CommonUtil.findNearestPoint(p3, clusterCenters) *)
+		val identPoint = Point.Point 1
+		val identCluster = ClusterCenter.fromPoint identPoint
+
+		val pointOne = Point.pointFromList [1.0]
+		val clusterOne = ClusterCenter.fromPoint pointOne
+
+		val pointTwo = Point.pointFromList [2.0]
+		val clusterTwo = ClusterCenter.fromPoint pointTwo
+
+
+		val clusters = #[identCluster, clusterOne, clusterTwo]
+
+		(* note that euclidDist returns distance squared *)
+		fun testEuclidDist () = 
+			let 
+				val msg = "testEuclidDist"
+				fun test (x, y) = 
+					T.assertEq(Real.compare, x, y, msg)
+			in
+				(
+				  test(0.0, euclidDist(identPoint, identPoint));
+				  test(1.0, euclidDist(identPoint, pointOne));
+				  test(4.0, euclidDist(identPoint, pointTwo));
+				  test(0.0, euclidDist(pointOne, pointOne));
+				  test(0.0, euclidDist(pointTwo, pointTwo))
+				)
+			end
+
+		fun testFindNearestPoint () =
+			let
+				val msg = "findNearestPoint"
+				val f = fn x => findNearestPoint (x, clusters)
+				val test = fn x => T.assert (x, msg)
+			in
+				(
+				  test(0 = (f identPoint));
+				  test(1 = (f pointOne));
+				  test(2 = (f pointTwo))
+				)
+			end		
 		end
 
-structure TestCommonUtil = CommonUtilTest(structure C = CommonUtil)
+structure TestCommonUtil = CommonUtilTest(structure COM = CommonUtil
+										  structure C = ClusterCenter
+										  structure T = Testing)
 
 val _ = let 
 	open TestCommonUtil 		(* TODO: can this be done on one line? *)
 in
-	()
+	(
+	  testEuclidDist();
+	  testFindNearestPoint();
+	  print "COMMON UTIL PASSED\n"
+	)
 end
 
 
-(* unit tests -- cluster.sml*)
-functor ClusterTest(C : CLUSTER) = struct
-		val listOfReals = [[1.0, 1.0, 1.0],
-						   [2.0, 2.0, 2.0],
-						   [1.0, 2.0, 3.0]]
+functor NormalUnitTest (structure N : NORMAL
+						structure T : TESTING) = struct
 
-		val extractedMoments = map Cluster.extractMoments listOfReals
-								   
-		val pointList = map Point.pointFromList 
-							[[1.0, 1.0, 1.0],
-							 [2.0, 2.0, 2.0],
-							 [1.0, 2.0, 3.0]]
-		
-		val normalizedPoints = Cluster.zscoreTransform (pointList, true)
-		val _ = app Point.printPoint normalizedPoints
-		end
+		val identPoint = Point.Point 1
+		val identCluster = ClusterCenter.fromPoint identPoint
 
-structure testCluster = ClusterTest(Cluster)
+		val pointOne = Point.pointFromList [1.0]
+		val clusterOne = ClusterCenter.fromPoint pointOne
 
+		val pointTwo = Point.pointFromList [2.0]
+		val clusterTwo = ClusterCenter.fromPoint pointTwo
 
+		val 
 
+(* (* unit tests  -- normal.sml *) *)
+(* functor NormalUnitTest (N : NORMAL) = *)
+(* 	struct *)
+(* 	open N *)
 
-(* unit tests  -- normal.sml *)
-functor NormalUnitTest (N : NORMAL) =
-	struct
-	open N
-
-	val realList = [[1.0, 1.0], [2.0, 2.0], [3.0, 3.0], [4.0, 4.0]]
-	val onePoint = Point.pointFromList [1.5, 1.5]
-	val dataSet = map Point.pointFromList realList				
-	val blankDataSet = map (fn x => Point.Point 2) [1, 2, 3]
-	val simpleDataSet = map Point.pointFromList [[1.0], [1.0], [1.0], [1.0]]
+(* 	val realList = [[1.0, 1.0], [2.0, 2.0], [3.0, 3.0], [4.0, 4.0]] *)
+(* 	val onePoint = Point.pointFromList [1.5, 1.5] *)
+(* 	val dataSet = map Point.pointFromList realList				 *)
+(* 	val blankDataSet = map (fn x => Point.Point 2) [1, 2, 3] *)
+(* 	val simpleDataSet = map Point.pointFromList [[1.0], [1.0], [1.0], [1.0]] *)
 			
-	fun printOut (points) = 
-	     app (print "-----\n";Point.printPoint) points
+(* 	fun printOut (points) =  *)
+(* 	     app (print "-----\n";Point.printPoint) points *)
 	  
-	(* fun testAccumulate () =  *)
-	(*     let *)
-	(* 	fun test (i) =  *)
-	(* 	     printOut (accumulate (i, onePoint, blankDataSet)) *)
-	(*     in *)
-	(* 	map test [0, 1, 2] *)
-	(*     end *)
+(* 	(* fun testAccumulate () =  *) *)
+(* 	(*     let *) *)
+(* 	(* 	fun test (i) =  *) *)
+(* 	(* 	     printOut (accumulate (i, onePoint, blankDataSet)) *) *)
+(* 	(*     in *) *)
+(* 	(* 	map test [0, 1, 2] *) *)
+(* 	(*     end *) *)
 
-	(* fun testAcc2 () =  *)
-	(*     let *)
-	(* 	fun test (0, acc) = acc *)
-	(* 	  | test (i, acc) = test(i-1, accumulate(0, onePoint, acc)) *)
-	(*     in *)
-	(* 	test (10, blankDataSet) *)
-	(*     end *)
+(* 	(* fun testAcc2 () =  *) *)
+(* 	(*     let *) *)
+(* 	(* 	fun test (0, acc) = acc *) *)
+(* 	(* 	  | test (i, acc) = test(i-1, accumulate(0, onePoint, acc)) *) *)
+(* 	(*     in *) *)
+(* 	(* 	test (10, blankDataSet) *) *)
+(* 	(*     end *) *)
 	
-	(* FIXME *)
-	(* fun testWork () =  *)
-	(*     printOut (work (dataSet, 1, #[ClusterCenter.ClusterCenter 2])) *)
+(* 	(* FIXME *) *)
+(* 	(* fun testWork () =  *) *)
+(* 	(*     printOut (work (dataSet, 1, #[ClusterCenter.ClusterCenter 2])) *) *)
 
 	    
 
-	fun testExecute () = 
-	    printOut (Normal.execute(dataSet, 
-				     2,
-				     1.0,
-				     Random.rand(0, 0),
-					 true))
+(* 	fun testExecute () =  *)
+(* 	    printOut (Normal.execute(dataSet,  *)
+(* 				     2, *)
+(* 				     1.0, *)
+(* 				     Random.rand(0, 0), *)
+(* 					 true)) *)
 		     
-	fun testExecSimple () = 
-	    printOut (Normal.execute(simpleDataSet, 1, 1.0, Random.rand(0, 0), true))
+(* 	fun testExecSimple () =  *)
+(* 	    printOut (Normal.execute(simpleDataSet, 1, 1.0, Random.rand(0, 0), true)) *)
 
-	end
+(* 	end *)
 
 
 

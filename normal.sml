@@ -72,7 +72,6 @@ val genericDebugFmt  =
 (* 		map Point.resetSize (loop (points, centersForAcc)) *)
 (*     end *)
 
-(* we: *)
 fun work (points, nClusterCenters, oldClusterCenters : ClusterCenter.t vector) = 
 	let
 		val newClusterCenter = 
