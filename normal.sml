@@ -7,7 +7,7 @@ signature NORMAL = sig
     (* val accumulate : int * Point.t * Point.t list * bool -> Point.t list *)
     val work : Point.t list * ClusterCenter.t vector -> ClusterCenter.t vector
 	val initializeClusterCenters : 
-		Point.t list * Random.rand * bool -> ClusterCenter.t vector
+		Point.t list * Random.rand * int * bool -> ClusterCenter.t vector
 	val vectorToList : 'a vector -> 'a list
 end
 
@@ -21,6 +21,28 @@ val genericDebugFmt  =
 		 StringPrintf.INT o 
 		 StringPrintf.STR o 
 		 (StringPrintf.LIST StringPrintf.STR))
+
+(* TODO: is Vector.toList an expensive operation? *)
+(* take two vectors of ClusterCenters and if any of them are non-normal in *)
+(* the  first list, replace them with their counterpart in the second list *)
+(* it only compares the first element because either all of the elements of *)
+(* a cluster will be NaN or none of them will be *)
+
+(* NOTE: this isn't in the original Java or C, i can't tell how they  *)
+(* handle this *)
+fun resolve (c1s, c2s) = 
+	let
+		fun getPair i = 
+			(Vector.sub(c1s, i), Vector.sub(c2s, i))
+		fun chooseNormal (c1, c2) = 
+			if (ClusterCenter.isNormal c1) then c1 else c2
+		fun loop (acc, ~1) = acc
+		  | loop (acc, i)  = loop(Vector.update 
+									  (acc, i, (chooseNormal (getPair i))),
+								  i - 1)
+	in
+		loop (c1s, Vector.length (c1s) - 1)
+	end
 
 
 (* this takes in a list of points and a vector of clusters and does one *)
@@ -50,8 +72,12 @@ fun work (points : Point.t list, oldClusterCenters : ClusterCenter.t vector) =
 							   index, 
 							   addToCenter (clusterCenters, index, point))
 			end
+		val unresolved = 
+			Vector.map 
+				ClusterCenter.resetSize 
+				(List.foldl accumulate vecForAccum points)
 	in
-		Vector.map ClusterCenter.resetSize (List.foldl accumulate vecForAccum points)
+		resolve (unresolved, oldClusterCenters)
 	end
 
 (* here, the Java generates a random number and ignores it with the comment *)
@@ -60,8 +86,8 @@ fun work (points : Point.t list, oldClusterCenters : ClusterCenter.t vector) =
 (* converting this to use vectors of clusters *)
 (* TOOD: this currently takes O(len(points) * nClusterCenters) time *)
 fun initializeClusterCenters (points, 
-							  (* nClusterCenters,  *)
 							  randomPtr, 
+							  nClusterCenters,
 							  debug) : ClusterCenter.t vector =
     let
 		val nPoints = length points
@@ -69,10 +95,10 @@ fun initializeClusterCenters (points,
 			(* following the "testing for correctness" in github version of *)
 			(* the Java *)
 			List.nth (points, 
-					  (if debug then index else
-					   ((Random.randInt (randomPtr) mod nPoints) - 1)))
+					  (if debug then (nPoints - index - 1) else
+					   ((Random.randInt (randomPtr) mod (nClusterCenters - 1)))))
 	in
-		Vector.tabulate (nPoints, fn i => (ClusterCenter.fromPoint (setCenter i)))
+		Vector.tabulate (nClusterCenters, fn i => (ClusterCenter.fromPoint (setCenter i)))
     end
 		
 
@@ -93,7 +119,7 @@ fun execute (points : Point.t list,
 			 debug : bool) =
     let
 		val initialClusterCenters = 
-			initializeClusterCenters(points, randomPtr, debug)
+			initializeClusterCenters(points, randomPtr, nClusterCenters, debug)
 
 		(* helper function for debugging *)
 		(* fun printIterationInfo (index, points) = *)
@@ -108,7 +134,7 @@ fun execute (points : Point.t list,
 		fun loop (10, clusterCenters) = 
 			clusterCenters
 		  | loop (index, clusterCenters) = 
-			loop(index + 1, work(points, clusterCenters))
+			loop (index + 1, work(points, clusterCenters))
     in
 		vectorToList (Vector.map 
 						  ClusterCenter.getPoint 

@@ -294,15 +294,12 @@ functor NormalUnitTest (structure N : NORMAL
 						structure T : TESTING) = struct
 		open N
 
-		fun compareClusterVectors(c1s, c2s) = 
+		fun comparePointLists (p1s, p2s) = 
 			let
-				fun toPointList cs = 
-					map ClusterCenter.getPoint (vectorToList c1s)
-					
 				val comp = 
 					ListPair.map 
 						Point.compare 
-						(toPointList c1s, toPointList c2s)
+						(p1s, p2s)
 				fun check ([]) = EQUAL
 				  | check (x::xs) = 
 					if x = EQUAL then check(xs) else x
@@ -310,7 +307,17 @@ functor NormalUnitTest (structure N : NORMAL
 				check comp
 			end
 
-		val vecOfThree = fn x => Vector.tabulate (3, fn y => x)
+		fun compareClusterVectors (c1s, c2s) = 
+			let
+				fun toPointList cs = 
+					map ClusterCenter.getPoint (vectorToList c1s)
+			in
+				comparePointLists (toPointList c1s, toPointList c2s)
+			end
+
+
+
+		val vecOfThree = fn x : 'a => Vector.tabulate (3, fn y => x)
 		val listOfThree = vectorToList o vecOfThree
 
 		val identPoint = Point.Point 1
@@ -359,7 +366,7 @@ functor NormalUnitTest (structure N : NORMAL
 				fun test x = 
 					fn (ps, rand, debug) => 
 					   T.assertEq(compareClusterVectors,
-								  x, initializeClusterCenters (ps, rand, debug),
+								  x, initializeClusterCenters (ps, rand, 3, debug),
 								  "testInitializeClusters")
 				fun default (ps, debug) = (ps, Random.rand(0, 0), debug)
 			in
@@ -372,13 +379,23 @@ functor NormalUnitTest (structure N : NORMAL
 				)
 			end
 
-		fun testWork () =
-			let 
-				
+		fun testExecute () =
+			let
+				fun test x = 
+					fn (ps, debug) =>
+					   T.assertEq 
+						   (comparePointLists,
+							x,
+							execute(identPoints, 3, 1.0, 
+									Random.rand(0, 0), debug),
+							"testExecute")
 			in
 				(
+				  (test identPoints (identPoints, false));
+				  (test identPoints (identPoints, true))
 				)
 			end
+					 
 
 		end
 
@@ -392,7 +409,9 @@ val _ =
 	in
 		(
 		  testWork();
-		  testInitializeClusters()
+		  testInitializeClusters();
+		  testExecute();
+		  print "TEST NORMAL PASSED\n"
 		)
 end
 
@@ -432,10 +451,10 @@ functor KMeansUnitTest(K : KMEANS) = struct
 	    KMeans("color100", 1, 10, 1, 1.0, true)
 	end
 
-structure TestKMeans = KMeansUnitTest(KMeans)
-val _ = TestKMeans.testKMeansSmall ()
+(* structure TestKMeans = KMeansUnitTest(KMeans) *)
+(* val _ = TestKMeans.testKMeansSmall () *)
 
-val _ = app Point.printPointList (TestKMeans.testKMeansLarge())
+(* val _ = app Point.printPointList (TestKMeans.testKMeansLarge()) *)
 
 (* val _ = main(["color100", "2", "100", " *)
 (* TODO: what is this ?.ClusterCenter.t stuff? *)

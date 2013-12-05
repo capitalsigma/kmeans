@@ -20,7 +20,7 @@ signature POINT = sig
     val getNumFeatures : t -> int
 
 	val compare : t * t -> order
-
+	val isNormal : t -> bool
 end
 
 (* not sure how to do this? *)
@@ -41,6 +41,8 @@ signature CLUSTER_CENTER = sig
 
 	val compare : t * t -> order
 	val compareSize : t * t -> order
+
+	val isNormal : t -> bool
 end								   
 
 (* funsig CLUSTER_CENTER_FUNSIG (P : POINT) =  *)
@@ -96,6 +98,8 @@ functor ClusterCenterFunctor (P : POINT) : CLUSTER_CENTER =
 		fun compareSize({size=n1,...} : t, {size=n2,...} : t) = 
 			Int.compare(n1, n2)
 
+		fun isNormal c = P.isNormal (getPoint c)
+
 		end
 			
 
@@ -103,7 +107,7 @@ structure Point :> POINT = struct
 exception NotEnoughFeatures
 exception InvalidFieldIndex
 
-type t = {features: real list}
+type t = real list
 
 (* methods are t, ... -> t functions contained in the *)
 (* Point structure, public methods are in the signature *)
@@ -111,25 +115,20 @@ type t = {features: real list}
 
 (* name follows the Java convention *)
 fun Point (numFeatures) : t =
-	{features = List.tabulate(numFeatures, fn x => 0.0)}
+	List.tabulate(numFeatures, fn x => 0.0)
 
 
-fun pointFromList (fs) = 
-	let
-		val ret = {
-			features = fs
-		}
-	in
-		ret
-	end
+fun pointFromList (fs) : t = 
+	fs
+
 
 (* all of the other methods of the Java class are getters and setters *)
 		
-fun mapOnFeatures (operation, {features = fs} : t) : t= 
-	{features = map operation fs}
+fun mapOnFeatures (operation, fs : t) : t= 
+	map operation fs
 
 
-fun getNumFeatures({features = fs}) =
+fun getNumFeatures(fs) =
 	length(fs)
 
 
@@ -148,18 +147,18 @@ fun featureListToPoints (featuress : real list list) =
 		map pointFromList zippedList
 	end
 
-fun pointToList ({features=fs}) = 
+fun pointToList (fs) : real list = 
 	fs
 
 fun pointsToFeatureList (points : t list) =
 	transpose (map pointToList points)
 
 
-fun add ({features=f1s} : t, {features=f2s} : t) =
-	{features = ListPair.mapEq op+  (f1s, f2s)}
+fun add (f1s : t, f2s : t) =
+	ListPair.mapEq op+  (f1s, f2s)
 		
 	
-fun repr ({features=fs}) = 
+fun repr (fs) = 
 	let
 		fun foldFeatures(real, string) = 
 			String.concat([string, " ", (Real.toString real)])
@@ -184,7 +183,7 @@ fun printPointList(ps) =
 	end
 
 
-fun compare ({features=f1s} : t, {features=f2s} : t) = 
+fun compare (f1s : t, f2s : t) = 
 	let
 		fun loop (f1::f1s, f2::f2s) = 
 			(case Real.compare(f1, f2) of
@@ -197,7 +196,14 @@ fun compare ({features=f1s} : t, {features=f2s} : t) =
 		loop (f1s, f2s)
 	end
 
-		
+fun isNormal p = 
+	let 
+		fun loop [] = true
+		  | loop (x::xs)  = if (Real.isNormal x) then (loop xs) else false
+	in
+		loop p
+	end
+								  
 				  
 
 end
