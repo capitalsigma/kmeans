@@ -292,6 +292,26 @@ end
 
 functor NormalUnitTest (structure N : NORMAL
 						structure T : TESTING) = struct
+		open N
+
+		fun compareClusterVectors(c1s, c2s) = 
+			let
+				fun toPointList cs = 
+					map ClusterCenter.getPoint (vectorToList c1s)
+					
+				val comp = 
+					ListPair.map 
+						Point.compare 
+						(toPointList c1s, toPointList c2s)
+				fun check ([]) = EQUAL
+				  | check (x::xs) = 
+					if x = EQUAL then check(xs) else x
+			in
+				check comp
+			end
+
+		val vecOfThree = fn x => Vector.tabulate (3, fn y => x)
+		val listOfThree = vectorToList o vecOfThree
 
 		val identPoint = Point.Point 1
 		val identCluster = ClusterCenter.fromPoint identPoint
@@ -302,72 +322,82 @@ functor NormalUnitTest (structure N : NORMAL
 		val pointTwo = Point.pointFromList [2.0]
 		val clusterTwo = ClusterCenter.fromPoint pointTwo
 
-		val 
+		val identClusters = Vector.tabulate (3, fn x => identCluster)
+		val clusterOnes = vecOfThree clusterOne
+		val clusterTwos = vecOfThree clusterTwo
 
-(* (* unit tests  -- normal.sml *) *)
-(* functor NormalUnitTest (N : NORMAL) = *)
-(* 	struct *)
-(* 	open N *)
+		val identPoints = List.tabulate (3, fn x => identPoint)
+		val pointOnes = [pointOne, pointOne, pointOne]
+		val pointTwos = List.tabulate (3, fn x => pointTwo)
+							
+		val clusters = #[identCluster, clusterOne, clusterTwo]
+		val clusters' = #[clusterOne, identCluster, identCluster]
+		val clusters'' = #[clusterTwo, identCluster, identCluster]
+							
+		val points = [pointTwo, pointOne, identPoint]
 
-(* 	val realList = [[1.0, 1.0], [2.0, 2.0], [3.0, 3.0], [4.0, 4.0]] *)
-(* 	val onePoint = Point.pointFromList [1.5, 1.5] *)
-(* 	val dataSet = map Point.pointFromList realList				 *)
-(* 	val blankDataSet = map (fn x => Point.Point 2) [1, 2, 3] *)
-(* 	val simpleDataSet = map Point.pointFromList [[1.0], [1.0], [1.0], [1.0]] *)
-			
-(* 	fun printOut (points) =  *)
-(* 	     app (print "-----\n";Point.printPoint) points *)
-	  
-(* 	(* fun testAccumulate () =  *) *)
-(* 	(*     let *) *)
-(* 	(* 	fun test (i) =  *) *)
-(* 	(* 	     printOut (accumulate (i, onePoint, blankDataSet)) *) *)
-(* 	(*     in *) *)
-(* 	(* 	map test [0, 1, 2] *) *)
-(* 	(*     end *) *)
-
-(* 	(* fun testAcc2 () =  *) *)
-(* 	(*     let *) *)
-(* 	(* 	fun test (0, acc) = acc *) *)
-(* 	(* 	  | test (i, acc) = test(i-1, accumulate(0, onePoint, acc)) *) *)
-(* 	(*     in *) *)
-(* 	(* 	test (10, blankDataSet) *) *)
-(* 	(*     end *) *)
-	
-(* 	(* FIXME *) *)
-(* 	(* fun testWork () =  *) *)
-(* 	(*     printOut (work (dataSet, 1, #[ClusterCenter.ClusterCenter 2])) *) *)
-
-	    
-
-(* 	fun testExecute () =  *)
-(* 	    printOut (Normal.execute(dataSet,  *)
-(* 				     2, *)
-(* 				     1.0, *)
-(* 				     Random.rand(0, 0), *)
-(* 					 true)) *)
-		     
-(* 	fun testExecSimple () =  *)
-(* 	    printOut (Normal.execute(simpleDataSet, 1, 1.0, Random.rand(0, 0), true)) *)
-
-(* 	end *)
+		fun testWork() = 
+			let
+				fun test x = 
+					fn (y, z) =>
+					   T.assertEq(compareClusterVectors, 
+								  x,
+								  work(y, z),
+								 "testWork")
+			in
+				(
+				  (test identClusters (identPoints, identClusters));
+				  (test clusters (identPoints, clusters));
+				  (test clusters' (pointOnes, identClusters));
+				  (test clusters'' (pointTwos, identClusters))
+				)
+			end
 
 
+		fun testInitializeClusters () = 
+			let 
+				fun test x = 
+					fn (ps, rand, debug) => 
+					   T.assertEq(compareClusterVectors,
+								  x, initializeClusterCenters (ps, rand, debug),
+								  "testInitializeClusters")
+				fun default (ps, debug) = (ps, Random.rand(0, 0), debug)
+			in
+				(
+				  (test identClusters (identPoints, Random.rand(0, 0), false));
+				  (test identClusters (identPoints, Random.rand(0, 0), true));
+				  (test clusterOnes (default (pointOnes, true)));
+				  (test clusterTwos (default (pointTwos, false)));
+				  (test clusters, (default (points, true)))
+				)
+			end
 
-structure TestNormal = NormalUnitTest(Normal);
+		fun testWork () =
+			let 
+				
+			in
+				(
+				)
+			end
+
+		end
 
 
-(* val _ = TestNormal.testAccumulate () *)
-(* val _ = TestNormal.testWork () *)
-val _ = TestNormal.testExecSimple ()
-(* val _ = TestNormal.testAcc2 () *)
-val _ = TestNormal.testExecute ()
+structure TestNormal = NormalUnitTest(structure N = Normal
+									  structure T = Testing)
 
+val _ = 
+	let 
+		open TestNormal
+	in
+		(
+		  testWork();
+		  testInitializeClusters()
+		)
+end
 
 
 (* unit tests --  kmeans  *)
-
-
 functor ParserUnitTest (P : PARSER) = 
 	struct
 	open P
