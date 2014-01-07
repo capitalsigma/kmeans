@@ -2,8 +2,10 @@
 Library 
 	structure Parser
 	structure KMeans
+    structure Main
 	signature PARSER
 	signature KMEANS
+    signature MAIN
 
 	structure Cluster
     signature CLUSTER

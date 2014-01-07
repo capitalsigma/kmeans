@@ -1,3 +1,10 @@
+(* CM.make "./kmeans.cm"; *)
+
+signature MAIN = sig
+	val main : string list -> Point.t list list
+	val printResults : Point.t list list -> unit
+end
+
 signature PARSER = sig
     val lineToPoint : string -> Point.t 
 
@@ -54,8 +61,10 @@ fun KMeans (filePath, minClusters, maxClusters, nThreads, threshold, debug) =
 
 end
 
+structure Main = struct
+
 (* args need to be: file, minClusters, maxClusters, nthreads *)
-fun main (argv) = 
+fun main argv = 
     (* neither the C nor the Java seem to actually do any comparisons to *)
     (* figure out what the "best" cluster centers are, it looks like it  *)
     (* just always returns maxClusters and the last result it calculated *)
@@ -68,8 +77,8 @@ fun main (argv) =
 				val [minClusters, maxClusters, nThreads] = 
 					(map toInt (tl argList))
 			in
-				(* default to debug mode off, threshold (unused) = 1.0 *)
-				KMeans.KMeans(filePath, minClusters, maxClusters, nThreads, 1.0, false)
+				(* default to debug mode on, threshold (unused) = 1.0 *)
+				KMeans.KMeans(filePath, minClusters, maxClusters, nThreads, 1.0, true)
 			end
     in
 		(case length argv of 
@@ -77,20 +86,18 @@ fun main (argv) =
 		  |   _ => raise BadArgs)
     end
 
-fun printResults points = 
-    let	
-		fun printSpaceDelimited (i, p) = 
-			print (String.concat [(Int.toString i), " ", p])
-		fun loop (i, p::ps) = 
-			(printSpaceDelimited (i, p);
-			 loop(i + 1, ps))
-		  | loop (i, []) = 
-			()
-    in
-		loop (0, points)
-    end
-	    
-		
+fun printResults pointss = 
+    (* let	 *)
+	(* 	fun printSpaceDelimited (i, p) =  *)
+	(* 		print (String.concat [(Int.toString i), " ", p]) *)
+	(* 	fun loop (i, p::ps) =  *)
+	(* 		(printSpaceDelimited (i, p); *)
+	(* 		 loop(i + 1, ps)) *)
+	(* 	  | loop (i, []) =  *)
+	(* 		() *)
+    (* in *)
+	(* 	loop (0, points) *)
+	app Point.printPointList pointss
 
-		(* val _ = main(CommandLine.arguments()) *)
+end
 

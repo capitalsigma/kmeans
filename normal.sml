@@ -91,12 +91,15 @@ fun initializeClusterCenters (points,
 							  debug) : ClusterCenter.t vector =
     let
 		val nPoints = length points
+		fun getMaxPoint x = 
+			if (nPoints - 1) > 0 then (x mod (nPoints - 1)) else
+							 0
 		fun setCenter index = 
 			(* following the "testing for correctness" in github version of *)
 			(* the Java *)
 			List.nth (points, 
 					  (if debug then (nPoints - index - 1) else
-					   ((Random.randInt (randomPtr) mod (nClusterCenters - 1)))))
+					   (getMaxPoint (Random.randInt randomPtr))))
 	in
 		Vector.tabulate (nClusterCenters, fn i => (ClusterCenter.fromPoint (setCenter i)))
     end
@@ -106,7 +109,7 @@ fun vectorToList vec =
 	List.tabulate (Vector.length vec, fn i => Vector.sub(vec, i))
 
 (* github.com/daveboutcher/stamp-mp/blob/master/kmeans/normal.c *)
-(* github.com/dpj/DPJ/blob/master/Benchmarks/Applications/KMeans/dpj/Normal.java *)
+(* github.com/dpj/DPJ/blob/master/Benchmarks/Applications/KMeans/dpj/Normalsml .java *)
 (* NB, the Java has changed from the C: *)
 (*    the C terminates on either the change from successive runs being *)
 (*    less than the specfied thresh hold or 500 iterations *)
