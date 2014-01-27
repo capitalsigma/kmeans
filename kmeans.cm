@@ -22,9 +22,7 @@ Library
     structure ClusterCenter
     signature CLUSTER_CENTER
 
-    (* from http://www.cs.nyu.edu/leunga/sml-software.html *)
-    signature STRING_PRINTF
-    structure StringPrintf
+
 
 is
 	kmeans.sml
@@ -36,9 +34,7 @@ is
 	normal.sml
 
 	point.sml
-
-    format-lib/string-printf.sig
-    format-lib/string-printf.sml    
+  
 
 	$/basis.cm
 	$/smlnj-lib.cm

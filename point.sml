@@ -23,8 +23,6 @@ signature POINT = sig
 	val isNormal : t -> bool
 end
 
-(* not sure how to do this? *)
-(* ASK ABOUT THIS *)
 signature CLUSTER_CENTER = sig
 	structure P : POINT
 

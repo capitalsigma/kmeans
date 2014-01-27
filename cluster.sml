@@ -30,15 +30,6 @@ fun zscoreTransform (points : Point.t list, debug) =
 				val firstMoment = Math.sqrt(m1)
 				fun normalize(singleFeatures) =
 					(singleFeatures - zerothMoment) / firstMoment
-				(* debugging *)
-				val _ = if debug then
-							(app 
-								 (fn x => 
-									 print (String.concat([(Real.toString x), " "]))) 
-								 [m0, m1];
-							 print "-------\n")
-						else 
-							()
 			in
 				map normalize singleFeatures
 			end

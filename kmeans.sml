@@ -19,8 +19,6 @@ fun lineToPoint (line) =
 		(* input is whitespace delimited *)
 		val linums::features = String.tokens Char.isSpace line
     in
-		(* "tl" here because the first number is a line counter in their  *)
-		(* data *)
 		Point.pointFromList (map (Option.valOf o Real.fromString) features)
     end
 
@@ -76,9 +74,16 @@ fun main argv =
 				val filePath = hd argList
 				val [minClusters, maxClusters, nThreads] = 
 					(map toInt (tl argList))
+				val start = Time.now()
+				val ans = KMeans.KMeans(filePath, minClusters, 
+										maxClusters, nThreads, 1.0, true)
+				val _ = print(String.concat(["Time elapsed: ",
+											(Time.fmt 7 (Time.- (Time.now(), 
+																 start))),
+											" seconds\n"]))
 			in
 				(* default to debug mode on, threshold (unused) = 1.0 *)
-				KMeans.KMeans(filePath, minClusters, maxClusters, nThreads, 1.0, true)
+				ans
 			end
     in
 		(case length argv of 

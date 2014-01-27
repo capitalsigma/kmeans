@@ -95,8 +95,8 @@ fun initializeClusterCenters (points,
 			if (nPoints - 1) > 0 then (x mod (nPoints - 1)) else
 							 0
 		fun setCenter index = 
-			(* following the "testing for correctness" in github version of *)
-			(* the Java *)
+			(* NOTE: using "nclusters" here to follow the Java BREAKS the *)
+			(* output *)
 			List.nth (points, 
 					  (if debug then (nPoints - index - 1) else
 					   (getMaxPoint (Random.randInt randomPtr))))
@@ -147,3 +147,5 @@ fun execute (points : Point.t list,
 
 end 
 								 
+
+(* fun printIntermediate  *)
