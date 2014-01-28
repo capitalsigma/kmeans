@@ -15,12 +15,12 @@ structure Normal :> NORMAL = struct
 
 (* string -> int -> string -> string list -> string *)
 (* ie printf("%s %i %s") + a for loop + printf("%s") *)
-val genericDebugFmt  =
-	StringPrintf.format 
-		(StringPrintf.STR o 
-		 StringPrintf.INT o 
-		 StringPrintf.STR o 
-		 (StringPrintf.LIST StringPrintf.STR))
+(* val genericDebugFmt  = *)
+(* 	StringPrintf.format  *)
+(* 		(StringPrintf.STR o  *)
+(* 		 StringPrintf.INT o  *)
+(* 		 StringPrintf.STR o  *)
+(* 		 (StringPrintf.LIST StringPrintf.STR)) *)
 
 (* TODO: is Vector.toList an expensive operation? *)
 (* take two vectors of ClusterCenters and if any of them are non-normal in *)
