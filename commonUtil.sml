@@ -1,7 +1,7 @@
 signature COMMON_UTIL = sig
-					  
+
 	val euclidDist : Point.t * Point.t -> real
-	val findNearestPoint : Point.t * ClusterCenter.t vector -> int
+	val findNearestPoint : Point.t * ClusterCenter.t array -> int
 end
 
 
@@ -47,7 +47,7 @@ end
 (* 			in *)
 (* 				minDistance(maxDist, ~1, numClusters) *)
 (* 			end *)
-				
+
 (* 		end *)
 
 
@@ -75,17 +75,17 @@ fun euclidDist (point1, point2) =
     end
 
 
-fun findNearestPoint (point, clusters : ClusterCenter.t vector) =
+fun findNearestPoint (point, clusters : ClusterCenter.t array) =
     let
 		val limit = 0.99999 	(* ??? from the Java *)
 		val maxDist = Real.posInf
-		val numClusters = Vector.length (clusters)
+		val numClusters = Array.length (clusters)
 		(* TODO: can you pattern match on dynamic values? *)
 		fun minDistance (_, indexOfNearest, ~1) = indexOfNearest
 		  | minDistance (maxDist, indexOfNearest, i) =
 			let
 				val newDist = euclidDist(point,
-										 ClusterCenter.getPoint (Vector.sub (clusters, i)))
+										 ClusterCenter.getPoint (Array.sub (clusters, i)))
 			in
 				if (newDist / maxDist) < limit then
 					minDistance(newDist, i, i - 1)
@@ -95,5 +95,5 @@ fun findNearestPoint (point, clusters : ClusterCenter.t vector) =
     in
 		minDistance(maxDist, ~1, numClusters - 1)
     end
-		    
+
 end
