@@ -5,12 +5,12 @@ signature TEST = sig
 end
 
 structure Test = struct
-type t = int * int
+type t = (int * int) list
 
 val somePair = (1, 2)
 
 fun ex (pair : 'a * 'a) =
-	pair
+	[pair]
 
 end
 
