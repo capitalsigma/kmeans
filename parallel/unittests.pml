@@ -1,11 +1,11 @@
-signature TESTING = sig
-	val assert : bool * string -> unit
-	val assertOrd : ('a * 'a -> order) * order * 'a * 'a * string -> unit
-	val assertEq : ('a * 'a -> order) * 'a * 'a * string -> unit
-end
+(* signature TESTING = sig *)
+(* 	val assert : bool * string -> unit *)
+(* 	val assertOrd : ('a * 'a -> order) * order * 'a * 'a * string -> unit *)
+(* 	val assertEq : ('a * 'a -> order) * 'a * 'a * string -> unit *)
+(* end *)
 
 (* apparently manticore doesn't have opaque types? *)
-structure Testing : TESTING = struct
+structure Testing = struct
 
 fun pass (msg) =
 	print (msg ^ " pass\n")
@@ -45,7 +45,7 @@ end
 
 structure PArrayPair : EXECUTABLE = struct
 
-fun assertPairsOrd (pairs : PArrayPair.t, pairs' : PArrayPair.t,
+fun assertPairsOrd (pairs, pairs',
 					ord : order, msg : string) =
 	let
 		val comp = Int.compare
@@ -65,11 +65,11 @@ val pairOfTwos = (2, 2)
 val parrayOfPairsOfOnes = [| pairOfOnes | x in [| 0 to 10 |] |]
 val parrayPairOfOnes = PArrayPair.fromPairPArray parrayOfPairsOfOnes
 
-fun testPArrayPairCompare (value, value') =
+fun testPArrayPairCompare (value : int, value' : int) =
 	let
 		val LENGTH = 10
 		val toMap = [| 0 to LENGTH |]
-		val pairs = PArrayPair.fromPairPArray [| (value, value) | x in toMap |]
+		val pairs = PArrayPair.fromPairPArray ([| (value, value) | x in toMap |])
 		val pairs' = PArrayPair.fromPairPArray [| (value', value') | x in toMap |]
 		val expected = Int.compare (value, value')
 		val msg = String.concat ["testPArrayCompareEq: ",
@@ -95,8 +95,10 @@ end
 
 (* point.sml *)
 structure PointUnitTest : EXECUTABLE = struct
-
-fun assertPointEq (p1 : Point.t, p2 : Point.t, msg : string)  =
+(* this gives me "undefined type t"? this seems like a bug *)
+(* fun assertPointEq (p1 : Point.t, p2 : Point.t, msg : string)  = *)
+(* why am i getting "redundant match" on the .mlb file?  *)
+fun assertPointEq (p1, p2, msg : string)  =
 	Testing.assertEq (Point.compare, p1, p2, msg)
 
 fun testPointCompare nFeatures =

@@ -1,0 +1,197 @@
+
+\documentclass{article}
+\usepackage{fancyvrb}
+\usepackage{color}
+\usepackage[utf8]{inputenc}
+\usepackage[dvipsnames]{xcolor}
+\renewcommand{\theFancyVerbLine}{\textcolor{red}{\small\arabic{FancyVerbLine}}}
+% redefine \VerbatimInput
+\RecustomVerbatimCommand{\VerbatimInput}{VerbatimInput}%
+{fontsize=\footnotesize,
+ %
+ frame=lines,  % top and bottom rule only
+ framesep=2em, % separation between frame and text
+ rulecolor=\color{Gray},
+ %
+ label=\fbox{\color{black}foo.txt},
+ labelposition=topline,
+ %
+ commandchars=\|\(\), % escape character and argument delimiters for
+                      % commands within the verbatim
+ commentchar=*        % comment character
+}
+
+
+\makeatletter
+\def\PY@reset{\let\PY@it=\relax \let\PY@bf=\relax%
+    \let\PY@ul=\relax \let\PY@tc=\relax%
+    \let\PY@bc=\relax \let\PY@ff=\relax}
+\def\PY@tok#1{\csname PY@tok@#1\endcsname}
+\def\PY@toks#1+{\ifx\relax#1\empty\else%
+    \PY@tok{#1}\expandafter\PY@toks\fi}
+\def\PY@do#1{\PY@bc{\PY@tc{\PY@ul{%
+    \PY@it{\PY@bf{\PY@ff{#1}}}}}}}
+\def\PY#1#2{\PY@reset\PY@toks#1+\relax+\PY@do{#2}}
+
+\expandafter\def\csname PY@tok@gd\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.67,0.00,0.00}{##1}}}
+\expandafter\def\csname PY@tok@gu\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.50,0.00,0.50}{##1}}}
+\expandafter\def\csname PY@tok@gt\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.67,0.00,0.00}{##1}}}
+\expandafter\def\csname PY@tok@gs\endcsname{\let\PY@bf=\textbf}
+\expandafter\def\csname PY@tok@gr\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.67,0.00,0.00}{##1}}}
+\expandafter\def\csname PY@tok@cm\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.13,0.55,0.13}{##1}}}
+\expandafter\def\csname PY@tok@vg\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.41,0.55}{##1}}}
+\expandafter\def\csname PY@tok@m\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.71,0.32,0.80}{##1}}}
+\expandafter\def\csname PY@tok@mh\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.71,0.32,0.80}{##1}}}
+\expandafter\def\csname PY@tok@cs\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.55,0.00,0.55}{##1}}}
+\expandafter\def\csname PY@tok@ge\endcsname{\let\PY@it=\textit}
+\expandafter\def\csname PY@tok@vc\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.41,0.55}{##1}}}
+\expandafter\def\csname PY@tok@il\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.71,0.32,0.80}{##1}}}
+\expandafter\def\csname PY@tok@go\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.53,0.53,0.53}{##1}}}
+\expandafter\def\csname PY@tok@cp\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.12,0.53,0.61}{##1}}}
+\expandafter\def\csname PY@tok@gi\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.67,0.00}{##1}}}
+\expandafter\def\csname PY@tok@gh\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,0.50}{##1}}}
+\expandafter\def\csname PY@tok@s2\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.80,0.33,0.33}{##1}}}
+\expandafter\def\csname PY@tok@nn\endcsname{\let\PY@ul=\underline\def\PY@tc##1{\textcolor[rgb]{0.00,0.55,0.27}{##1}}}
+\expandafter\def\csname PY@tok@no\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.41,0.55}{##1}}}
+\expandafter\def\csname PY@tok@na\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.55,0.00}{##1}}}
+\expandafter\def\csname PY@tok@nb\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.55,0.00}{##1}}}
+\expandafter\def\csname PY@tok@nc\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.55,0.27}{##1}}}
+\expandafter\def\csname PY@tok@nd\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.44,0.48,0.49}{##1}}}
+\expandafter\def\csname PY@tok@ne\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.55,0.27}{##1}}}
+\expandafter\def\csname PY@tok@nf\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.55,0.27}{##1}}}
+\expandafter\def\csname PY@tok@si\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.80,0.33,0.33}{##1}}}
+\expandafter\def\csname PY@tok@sh\endcsname{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.11,0.49,0.44}{##1}}}
+\expandafter\def\csname PY@tok@vi\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.41,0.55}{##1}}}
+\expandafter\def\csname PY@tok@nt\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.55,0.00,0.55}{##1}}}
+\expandafter\def\csname PY@tok@nv\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.41,0.55}{##1}}}
+\expandafter\def\csname PY@tok@s1\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.80,0.33,0.33}{##1}}}
+\expandafter\def\csname PY@tok@gp\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.33,0.33,0.33}{##1}}}
+\expandafter\def\csname PY@tok@ow\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.55,0.00,0.55}{##1}}}
+\expandafter\def\csname PY@tok@sx\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.80,0.42,0.13}{##1}}}
+\expandafter\def\csname PY@tok@bp\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.55,0.00}{##1}}}
+\expandafter\def\csname PY@tok@c1\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.13,0.55,0.13}{##1}}}
+\expandafter\def\csname PY@tok@kc\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.55,0.00,0.55}{##1}}}
+\expandafter\def\csname PY@tok@c\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.13,0.55,0.13}{##1}}}
+\expandafter\def\csname PY@tok@mf\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.71,0.32,0.80}{##1}}}
+\expandafter\def\csname PY@tok@err\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.65,0.09,0.09}{##1}}\def\PY@bc##1{\setlength{\fboxsep}{0pt}\colorbox[rgb]{0.89,0.82,0.82}{\strut ##1}}}
+\expandafter\def\csname PY@tok@kd\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.55,0.00,0.55}{##1}}}
+\expandafter\def\csname PY@tok@ss\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.80,0.33,0.33}{##1}}}
+\expandafter\def\csname PY@tok@sr\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.11,0.49,0.44}{##1}}}
+\expandafter\def\csname PY@tok@mo\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.71,0.32,0.80}{##1}}}
+\expandafter\def\csname PY@tok@mi\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.71,0.32,0.80}{##1}}}
+\expandafter\def\csname PY@tok@kn\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.55,0.00,0.55}{##1}}}
+\expandafter\def\csname PY@tok@kr\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.55,0.00,0.55}{##1}}}
+\expandafter\def\csname PY@tok@s\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.80,0.33,0.33}{##1}}}
+\expandafter\def\csname PY@tok@kp\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.55,0.00,0.55}{##1}}}
+\expandafter\def\csname PY@tok@w\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.73,0.73}{##1}}}
+\expandafter\def\csname PY@tok@kt\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.65,0.65,0.65}{##1}}}
+\expandafter\def\csname PY@tok@sc\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.80,0.33,0.33}{##1}}}
+\expandafter\def\csname PY@tok@sb\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.80,0.33,0.33}{##1}}}
+\expandafter\def\csname PY@tok@k\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.55,0.00,0.55}{##1}}}
+\expandafter\def\csname PY@tok@se\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.80,0.33,0.33}{##1}}}
+\expandafter\def\csname PY@tok@sd\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.80,0.33,0.33}{##1}}}
+
+\def\PYZbs{\char`\\}
+\def\PYZus{\char`\_}
+\def\PYZob{\char`\{}
+\def\PYZcb{\char`\}}
+\def\PYZca{\char`\^}
+\def\PYZam{\char`\&}
+\def\PYZlt{\char`\<}
+\def\PYZgt{\char`\>}
+\def\PYZsh{\char`\#}
+\def\PYZpc{\char`\%}
+\def\PYZdl{\char`\$}
+\def\PYZhy{\char`\-}
+\def\PYZsq{\char`\'}
+\def\PYZdq{\char`\"}
+\def\PYZti{\char`\~}
+% for compatibility with earlier versions
+\def\PYZat{@}
+\def\PYZlb{[}
+\def\PYZrb{]}
+\makeatother
+
+
+\begin{document}
+
+\section*{}
+
+\begin{Verbatim}[commandchars=\\\{\},numbers=left,firstnumber=1,stepnumber=1]
+\PY{k+kr}{signature} \PY{n+nn}{PARRAY\PYZus{}PAIR} \PY{p}{=} \PY{k+kr}{sig}
+    \PY{c+cm}{(*}\PY{c+cm}{ }\PY{c+cm}{t}\PY{c+cm}{y}\PY{c+cm}{p}\PY{c+cm}{e}\PY{c+cm}{ }\PY{c+cm}{t}\PY{c+cm}{ }\PY{c+cm}{*)}
+    \PY{k+kr}{type} \PY{k+kt}{t} \PY{p}{=} \PY{p}{(}\PY{n+nd}{\PYZsq{}a} \PY{n}{*} \PY{n+nd}{\PYZsq{}b}\PY{p}{)} \PY{n}{parray}
+
+    \PY{c+cm}{(*}\PY{c+cm}{ }\PY{c+cm}{u}\PY{c+cm}{n}\PY{c+cm}{c}\PY{c+cm}{o}\PY{c+cm}{m}\PY{c+cm}{m}\PY{c+cm}{e}\PY{c+cm}{n}\PY{c+cm}{t}\PY{c+cm}{i}\PY{c+cm}{n}\PY{c+cm}{g}\PY{c+cm}{ }\PY{c+cm}{c}\PY{c+cm}{a}\PY{c+cm}{u}\PY{c+cm}{s}\PY{c+cm}{e}\PY{c+cm}{s}\PY{c+cm}{ }\PY{c+cm}{a}\PY{c+cm}{ }\PY{c+cm}{s}\PY{c+cm}{y}\PY{c+cm}{n}\PY{c+cm}{t}\PY{c+cm}{a}\PY{c+cm}{x}\PY{c+cm}{ }\PY{c+cm}{e}\PY{c+cm}{r}\PY{c+cm}{r}\PY{c+cm}{o}\PY{c+cm}{r}\PY{c+cm}{:}\PY{c+cm}{ }\PY{c+cm}{*)}
+    \PY{c+cm}{(*}\PY{c+cm}{ }\PY{c+cm}{[}\PY{c+cm}{.}\PY{c+cm}{/}\PY{c+cm}{u}\PY{c+cm}{t}\PY{c+cm}{i}\PY{c+cm}{l}\PY{c+cm}{.}\PY{c+cm}{p}\PY{c+cm}{m}\PY{c+cm}{l}\PY{c+cm}{:}\PY{c+cm}{6}\PY{c+cm}{.}\PY{c+cm}{2}\PY{c+cm}{]}\PY{c+cm}{ }\PY{c+cm}{E}\PY{c+cm}{r}\PY{c+cm}{r}\PY{c+cm}{o}\PY{c+cm}{r}\PY{c+cm}{:}\PY{c+cm}{ }\PY{c+cm}{s}\PY{c+cm}{y}\PY{c+cm}{n}\PY{c+cm}{t}\PY{c+cm}{a}\PY{c+cm}{x}\PY{c+cm}{ }\PY{c+cm}{e}\PY{c+cm}{r}\PY{c+cm}{r}\PY{c+cm}{o}\PY{c+cm}{r}\PY{c+cm}{;}\PY{c+cm}{ }\PY{c+cm}{t}\PY{c+cm}{r}\PY{c+cm}{y}\PY{c+cm}{ }\PY{c+cm}{d}\PY{c+cm}{e}\PY{c+cm}{l}\PY{c+cm}{e}\PY{c+cm}{t}\PY{c+cm}{i}\PY{c+cm}{n}\PY{c+cm}{g}\PY{c+cm}{ }\PY{c+cm}{\PYZdq{}}\PY{c+cm}{e}\PY{c+cm}{x}\PY{c+cm}{c}\PY{c+cm}{e}\PY{c+cm}{p}\PY{c+cm}{t}\PY{c+cm}{i}\PY{c+cm}{o}\PY{c+cm}{n}\PY{c+cm}{\PYZdq{}}\PY{c+cm}{ }\PY{c+cm}{*)}
+    \PY{c+cm}{(*}\PY{c+cm}{ }\PY{c+cm}{e}\PY{c+cm}{x}\PY{c+cm}{c}\PY{c+cm}{e}\PY{c+cm}{p}\PY{c+cm}{t}\PY{c+cm}{i}\PY{c+cm}{o}\PY{c+cm}{n}\PY{c+cm}{ }\PY{c+cm}{U}\PY{c+cm}{n}\PY{c+cm}{e}\PY{c+cm}{q}\PY{c+cm}{u}\PY{c+cm}{a}\PY{c+cm}{l}\PY{c+cm}{L}\PY{c+cm}{e}\PY{c+cm}{n}\PY{c+cm}{g}\PY{c+cm}{t}\PY{c+cm}{h}\PY{c+cm}{s}\PY{c+cm}{ }\PY{c+cm}{*)}
+
+    \PY{k+kr}{val} \PY{n+nv}{fromPairPArray} \PY{p}{:} \PY{p}{(}\PY{n+nd}{\PYZsq{}a} \PY{n}{*} \PY{n+nd}{\PYZsq{}b}\PY{p}{)} \PY{n}{parray} \PY{p}{\PYZhy{}\PYZgt{}} \PY{n}{t}
+
+    \PY{k+kr}{val} \PY{n+nv}{zip} \PY{p}{:} \PY{n+nd}{\PYZsq{}a} \PY{n}{parray} \PY{n}{*} \PY{n+nd}{\PYZsq{}b} \PY{n}{parray} \PY{p}{\PYZhy{}\PYZgt{}} \PY{n}{t}
+    \PY{k+kr}{val} \PY{n+nv}{compare} \PY{p}{:} \PY{p}{(}\PY{n+nd}{\PYZsq{}a} \PY{n}{*} \PY{n+nd}{\PYZsq{}a} \PY{p}{\PYZhy{}\PYZgt{}} \PY{n}{order}\PY{p}{)} \PY{n}{*} \PY{p}{(}\PY{n+nd}{\PYZsq{}b} \PY{n}{*} \PY{n+nd}{\PYZsq{}b} \PY{p}{\PYZhy{}\PYZgt{}} \PY{n}{order}\PY{p}{)} \PY{p}{\PYZhy{}\PYZgt{}} \PY{n}{t} \PY{n}{*} \PY{n}{t} \PY{p}{\PYZhy{}\PYZgt{}} \PY{n}{order}
+
+    \PY{k+kr}{val} \PY{n+nv}{zipEq} \PY{p}{:} \PY{n+nd}{\PYZsq{}a} \PY{n}{parray} \PY{n}{*} \PY{n+nd}{\PYZsq{}b} \PY{n}{parray} \PY{p}{\PYZhy{}\PYZgt{}} \PY{n}{t}
+\PY{k+kr}{end}
+
+
+\PY{k+kr}{structure} \PY{n+nn}{PArrayPair} \PY{p}{:} \PY{n}{PARRAY\PYZus{}PAIR} \PY{p}{=} \PY{k+kr}{struct}
+\PY{k+kr}{type} \PY{k+kt}{t} \PY{p}{=} \PY{p}{(}\PY{n+nd}{\PYZsq{}a} \PY{n}{*} \PY{n+nd}{\PYZsq{}b}\PY{p}{)} \PY{n}{parray}
+
+\PY{k+kr}{exception} \PY{n+nc}{UnequalLengths}
+
+\PY{k+kr}{fun} \PY{n+nf}{fromPairPArray} \PY{n}{xs} \PY{p}{:} \PY{n}{t} \PY{p}{=}
+    \PY{n}{xs}
+
+\PY{k+kr}{fun} \PY{n+nf}{shortest} \PY{p}{(}\PY{n}{xs} \PY{p}{:} \PY{n}{t}\PY{p}{,} \PY{n}{ys} \PY{p}{:} \PY{n}{t}\PY{p}{)} \PY{p}{:} \PY{n}{int} \PY{p}{=}
+    \PY{n+nn}{Int}\PY{p}{.}\PY{n}{min}\PY{p}{(}\PY{n+nn}{PArray}\PY{p}{.}\PY{n}{length} \PY{n}{xs}\PY{p}{,}
+            \PY{n+nn}{PArray}\PY{p}{.}\PY{n}{length} \PY{n}{ys}\PY{p}{)}
+
+
+\PY{k+kr}{fun} \PY{n+nf}{shortestRange} \PY{p}{(}\PY{n}{xs} \PY{p}{:} \PY{n}{t}\PY{p}{,} \PY{n}{ys} \PY{p}{:} \PY{n}{t}\PY{p}{)} \PY{p}{:} \PY{n}{int} \PY{n}{parray} \PY{p}{=}
+    \PY{c+cm}{(*}\PY{c+cm}{ }\PY{c+cm}{T}\PY{c+cm}{O}\PY{c+cm}{D}\PY{c+cm}{O}\PY{c+cm}{:}\PY{c+cm}{ }\PY{c+cm}{i}\PY{c+cm}{s}\PY{c+cm}{ }\PY{c+cm}{t}\PY{c+cm}{h}\PY{c+cm}{i}\PY{c+cm}{s}\PY{c+cm}{ }\PY{c+cm}{r}\PY{c+cm}{e}\PY{c+cm}{e}\PY{c+cm}{v}\PY{c+cm}{a}\PY{c+cm}{l}\PY{c+cm}{u}\PY{c+cm}{a}\PY{c+cm}{t}\PY{c+cm}{e}\PY{c+cm}{d}\PY{c+cm}{ }\PY{c+cm}{a}\PY{c+cm}{t}\PY{c+cm}{ }\PY{c+cm}{e}\PY{c+cm}{v}\PY{c+cm}{e}\PY{c+cm}{r}\PY{c+cm}{y}\PY{c+cm}{ }\PY{c+cm}{s}\PY{c+cm}{t}\PY{c+cm}{e}\PY{c+cm}{p}\PY{c+cm}{?}\PY{c+cm}{ }\PY{c+cm}{a}\PY{c+cm}{l}\PY{c+cm}{s}\PY{c+cm}{o}\PY{c+cm}{,}\PY{c+cm}{ }\PY{c+cm}{i}\PY{c+cm}{s}\PY{c+cm}{ }\PY{c+cm}{i}\PY{c+cm}{t}\PY{c+cm}{ }\PY{c+cm}{p}\PY{c+cm}{r}\PY{c+cm}{e}\PY{c+cm}{f}\PY{c+cm}{e}\PY{c+cm}{r}\PY{c+cm}{a}\PY{c+cm}{b}\PY{c+cm}{l}\PY{c+cm}{e}
+\PY{c+cm}{ }\PY{c+cm}{ }\PY{c+cm}{ }\PY{c+cm}{ }\PY{c+cm}{t}\PY{c+cm}{o}\PY{c+cm}{ }\PY{c+cm}{u}\PY{c+cm}{s}\PY{c+cm}{e}\PY{c+cm}{ }\PY{c+cm}{a}\PY{c+cm}{ }\PY{c+cm}{l}\PY{c+cm}{i}\PY{c+cm}{s}\PY{c+cm}{t}\PY{c+cm}{ }\PY{c+cm}{h}\PY{c+cm}{e}\PY{c+cm}{r}\PY{c+cm}{e}\PY{c+cm}{?}\PY{c+cm}{ }\PY{c+cm}{*)}
+
+    \PY{p}{[}\PY{n}{|} \PY{l+m+mi}{0} \PY{n}{to} \PY{n}{shortest} \PY{p}{(}\PY{n}{xs}\PY{p}{,} \PY{n}{ys}\PY{p}{)} \PY{n}{|}\PY{p}{]}
+
+\PY{k+kr}{fun} \PY{n+nf}{zip} \PY{p}{(}\PY{n}{xs}\PY{p}{,} \PY{n}{ys}\PY{p}{)} \PY{p}{:} \PY{n}{t} \PY{p}{=}
+    \PY{c+cm}{(*}\PY{c+cm}{ }\PY{c+cm}{T}\PY{c+cm}{O}\PY{c+cm}{D}\PY{c+cm}{O}\PY{c+cm}{:}\PY{c+cm}{ }\PY{c+cm}{i}\PY{c+cm}{s}\PY{c+cm}{ }\PY{c+cm}{s}\PY{c+cm}{h}\PY{c+cm}{o}\PY{c+cm}{r}\PY{c+cm}{t}\PY{c+cm}{e}\PY{c+cm}{s}\PY{c+cm}{t}\PY{c+cm}{R}\PY{c+cm}{a}\PY{c+cm}{n}\PY{c+cm}{g}\PY{c+cm}{e}\PY{c+cm}{ }\PY{c+cm}{r}\PY{c+cm}{e}\PY{c+cm}{e}\PY{c+cm}{v}\PY{c+cm}{a}\PY{c+cm}{l}\PY{c+cm}{u}\PY{c+cm}{a}\PY{c+cm}{t}\PY{c+cm}{e}\PY{c+cm}{d}\PY{c+cm}{ }\PY{c+cm}{a}\PY{c+cm}{t}\PY{c+cm}{ }\PY{c+cm}{e}\PY{c+cm}{v}\PY{c+cm}{e}\PY{c+cm}{r}\PY{c+cm}{y}\PY{c+cm}{ }\PY{c+cm}{s}\PY{c+cm}{t}\PY{c+cm}{e}\PY{c+cm}{p}\PY{c+cm}{?}\PY{c+cm}{ }\PY{c+cm}{*)}
+    \PY{p}{[}\PY{n}{|} \PY{p}{(}\PY{n}{xs} \PY{n}{!} \PY{n}{i}\PY{p}{,} \PY{n}{ys} \PY{n}{!} \PY{n}{i}\PY{p}{)} \PY{n}{|} \PY{n}{i} \PY{k+kr}{in} \PY{n}{shortestRange} \PY{p}{(}\PY{n}{xs}\PY{p}{,} \PY{n}{ys}\PY{p}{)} \PY{p}{|}\PY{p}{]}
+
+
+\PY{k+kr}{fun} \PY{n+nf}{zipEq} \PY{p}{(}\PY{n}{xs}\PY{p}{,} \PY{n}{ys}\PY{p}{)} \PY{p}{:} \PY{n}{t} \PY{p}{=}
+    \PY{k+kr}{if} \PY{n+nn}{PArray}\PY{p}{.}\PY{n}{length} \PY{n}{xs} \PY{n}{\PYZlt{}\PYZgt{}} \PY{n+nn}{PArray}\PY{p}{.}\PY{n}{length} \PY{n}{ys} \PY{k+kr}{then}
+        \PY{k+kr}{raise} \PY{n}{UnequalLengths}
+    \PY{k+kr}{else}
+        \PY{n}{zip} \PY{p}{(}\PY{n}{xs}\PY{p}{,} \PY{n}{ys}\PY{p}{)}
+
+\PY{k+kr}{fun} \PY{n+nf}{compare} \PY{p}{(}\PY{n}{comp} \PY{p}{:} \PY{p}{(}\PY{n+nd}{\PYZsq{}a} \PY{n}{*} \PY{n+nd}{\PYZsq{}a}\PY{p}{)} \PY{p}{\PYZhy{}\PYZgt{}} \PY{n}{order}\PY{p}{,} \PY{n}{comp\PYZsq{}} \PY{p}{:} \PY{p}{(}\PY{n+nd}{\PYZsq{}b} \PY{n}{*} \PY{n+nd}{\PYZsq{}b}\PY{p}{)} \PY{p}{\PYZhy{}\PYZgt{}} \PY{n}{order}\PY{p}{)} \PY{p}{=}
+    \PY{k+kr}{fn} \PY{p}{(}\PY{n}{xs} \PY{p}{:} \PY{n}{t}\PY{p}{,} \PY{n}{ys} \PY{p}{:} \PY{n}{t}\PY{p}{)} \PY{p}{=\PYZgt{}}
+       \PY{k+kr}{let}
+           \PY{k+kr}{fun} \PY{n+nf}{comparePair} \PY{p}{(}\PY{p}{(}\PY{n}{one} \PY{p}{:} \PY{n+nd}{\PYZsq{}a}\PY{p}{,} \PY{n}{two} \PY{p}{:} \PY{n+nd}{\PYZsq{}b}\PY{p}{)}\PY{p}{,}
+                            \PY{p}{(}\PY{n}{one\PYZsq{}} \PY{p}{:} \PY{n+nd}{\PYZsq{}a}\PY{p}{,} \PY{n}{two\PYZsq{}} \PY{p}{:} \PY{n+nd}{\PYZsq{}b}\PY{p}{)}\PY{p}{)} \PY{p}{:} \PY{p}{(}\PY{n}{order} \PY{n}{*} \PY{n}{order}\PY{p}{)} \PY{p}{=}
+               \PY{p}{(}\PY{n}{comp} \PY{p}{(}\PY{n}{one}\PY{p}{,} \PY{n}{one\PYZsq{}}\PY{p}{)}\PY{p}{,} \PY{n}{comp\PYZsq{}} \PY{p}{(}\PY{n}{two}\PY{p}{,} \PY{n}{two\PYZsq{}}\PY{p}{)}\PY{p}{)}
+
+           \PY{k+kr}{fun} \PY{n+nf}{selectUnequal} \PY{p}{(}\PY{n}{ord} \PY{p}{:} \PY{n}{order}\PY{p}{,} \PY{n}{ord\PYZsq{}} \PY{p}{:} \PY{n}{order}\PY{p}{)} \PY{p}{:} \PY{n}{order} \PY{p}{=}
+               \PY{p}{(}\PY{k+kr}{case} \PY{p}{(}\PY{n}{ord}\PY{p}{,} \PY{n}{ord\PYZsq{}}\PY{p}{)}
+                 \PY{k+kr}{of} \PY{p}{(}\PY{n}{EQUAL}\PY{p}{,} \PY{n}{LESS}\PY{p}{)} \PY{p}{=\PYZgt{}} \PY{n}{LESS}
+                  \PY{n}{|} \PY{p}{(}\PY{n}{EQUAL}\PY{p}{,} \PY{n}{MORE}\PY{p}{)}  \PY{p}{=\PYZgt{}} \PY{n}{MORE}
+                  \PY{n}{|} \PY{p}{(}\PY{n}{LESS}\PY{p}{,} \PY{p}{\PYZus{}}\PY{p}{)}  \PY{p}{=\PYZgt{}} \PY{n}{LESS}
+                  \PY{n}{|} \PY{p}{(}\PY{n}{MORE}\PY{p}{,} \PY{p}{\PYZus{}}\PY{p}{)} \PY{p}{=\PYZgt{}} \PY{n}{MORE}
+                  \PY{n}{|} \PY{p}{(}\PY{p}{\PYZus{}}\PY{p}{,} \PY{p}{\PYZus{}}\PY{p}{)} \PY{p}{=\PYZgt{}} \PY{n}{EQUAL}\PY{p}{)}
+
+           \PY{k+kr}{val} \PY{n+nv}{compared} \PY{p}{:} \PY{p}{(}\PY{n}{order} \PY{n}{*} \PY{n}{order}\PY{p}{)} \PY{n}{parray} \PY{p}{=}
+               \PY{p}{[}\PY{n}{|} \PY{n}{comparePair} \PY{p}{(}\PY{n}{xs} \PY{n}{!} \PY{n}{i}\PY{p}{,} \PY{n}{ys} \PY{n}{!} \PY{n}{i}\PY{p}{)} \PY{n}{|} \PY{n}{i} \PY{k+kr}{in} \PY{n}{shortestRange}\PY{p}{(}\PY{n}{xs}\PY{p}{,} \PY{n}{ys}\PY{p}{)} \PY{n}{|}\PY{p}{]}
+
+           \PY{k+kr}{val} \PY{n+nv}{asOrders} \PY{p}{=}
+               \PY{p}{[}\PY{n}{|} \PY{n}{selectUnequal} \PY{n}{x} \PY{n}{|} \PY{n}{x} \PY{k+kr}{in} \PY{n}{compared} \PY{n}{|}\PY{p}{]}
+       \PY{k+kr}{in}
+           \PY{n+nn}{PArray}\PY{p}{.}\PY{n}{reduce} \PY{n}{selectUnequal} \PY{n}{EQUAL} \PY{n}{asOrders}
+       \PY{k+kr}{end}
+
+\PY{k+kr}{end}
+\end{Verbatim}
+
+\VerbatimInput{./errs.txt}
+
+\end{document}
